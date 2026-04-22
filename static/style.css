@@ -82,7 +82,8 @@ button{
   opacity: 0.8;
   height:45px;
   border: none;
-  border-radius: 2px;
+  padding: 10px 16px;
+  border-radius: 6px;
   margin-left: auto;
   margin-right: auto;
   display: table;
@@ -125,3 +126,4 @@ button:disabled {
     margin-bottom: 1em ;
     text-indent: 22px ;
 }
+

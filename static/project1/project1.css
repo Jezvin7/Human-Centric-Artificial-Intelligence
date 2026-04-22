@@ -1,0 +1,139 @@
+body {
+    font-family: "Roboto Slab", "HelveticaNeue", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    background: rgba(39, 92, 178, 0.8);
+    margin: 0;
+    padding: 0;
+    color: #222;
+}
+
+.container {
+    max-width: 1100px;
+    margin: 30px auto;
+    padding: 20px;
+}
+
+h1{
+    margin-top: 0;
+    color: white;
+}
+ h2 {
+    margin-top: 0;
+}
+
+.card {
+    background: white;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.table-wrapper {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+table th,
+table td {
+    border: 1px solid #ddd;
+    padding: 8px 10px;
+    text-align: left;
+}
+
+table th {
+    background: #f0f3f5;
+}
+
+button {
+    background: rgba(39, 92, 178, 0.8);
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: rgba(39, 92, 178, 1);
+}
+
+.reset-link {
+    margin-left: 12px;
+    background: #c0392b;
+    color: #ffffff;
+}
+
+.reset-link:hover {
+    background: #a93226;
+}
+
+.message {
+    padding: 12px 14px;
+    margin-bottom: 15px;
+    border-radius: 6px;
+}
+
+.message.success {
+    background: #d4edda;
+    color: #155724;
+}
+
+.message.error {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.message.info {
+    background: #d1ecf1;
+    color: #0c5460;
+}
+
+.upload-sub {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #1a1a2e;
+    margin: 0;
+}
+.upload-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 4px;
+}
+
+input[type="file"] {
+    display: none;
+}
+
+.file-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 10px;
+    background: #f0f3f5;
+    border: 2px dashed #1f6feb;
+    border-radius: 8px;
+    cursor: pointer;
+    color: #1f6feb;
+    font-weight: 600;
+    transition: background 0.2s;
+}
+
+.file-label:hover {
+    background: #dce8fb;
+}
+
+.form-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid #eee;
+}
+
