@@ -1,3 +1,4 @@
+from .ml_engine import run_ml_pipeline
 from django.shortcuts import render
 from django.http import JsonResponse
 from io import StringIO
@@ -166,3 +167,43 @@ def reset_session(request):
         request.session.pop(key, None)
     request.session.modified = True
     return JsonResponse({"ok": True})
+
+@require_POST
+
+def run_model(request):
+
+    print("RUN_MODEL HIT")
+
+    try:
+        df = load_dataframe_from_session(request)
+
+        if df is None:
+            return JsonResponse({
+                "ok": False,
+                "error": "No dataset found"
+            })
+
+        target_col = df.columns[-1]
+
+        if df[target_col].nunique() == len(df):
+            target_col = df.columns[-2]
+
+        task_type = detect_task_type(df, target_col)
+
+        result = run_ml_pipeline(df, target_col, task_type)
+
+        return JsonResponse({
+            "ok": True,
+            "result": result,
+            "task_type": task_type
+        })
+
+    except Exception as e:
+
+        print("RUN_MODEL ERROR:", str(e))
+
+        return JsonResponse({
+            "ok": False,
+            "error": str(e)
+        })
+

@@ -32,6 +32,9 @@
                 <div class="form-actions">
                     <button type="submit" id="upload-btn">Upload</button>
                     <button type="button" id="reset-btn" class="reset-link">Reset</button>
+                    <button id="runModelBtn">Run ML Model</button>
+
+<div id="resultBox"></div>
                 </div>
             </form>
         </section>
@@ -217,7 +220,85 @@
             const name = this.files[0] ? this.files[0].name : "Upload File";
             document.getElementById("file-label-text").textContent = name;
         });
+
+        
     </script>
+    <script>
+
+document.getElementById("runModelBtn").addEventListener("click", function(e) {
+
+    e.preventDefault();
+
+    fetch("/project1/run_model/", {
+        method: "POST",
+        headers: {
+            "X-CSRFToken": getCookie("csrftoken")
+        }
+    })
+
+    .then(response => response.json())
+
+    .then(data => {
+
+        console.log("SERVER RESPONSE:", data);
+
+        if (data.ok) {
+
+            document.getElementById("resultBox").innerHTML =
+                "Accuracy: " + data.result.score;
+
+        } else {
+
+            document.getElementById("resultBox").innerHTML =
+                "Error: " + data.error;
+
+        }
+
+    })
+
+    .catch(error => {
+
+        console.log("ERROR:", error);
+
+        document.getElementById("resultBox").innerHTML =
+            "Request failed";
+
+    });
+
+});
+
+
+function getCookie(name) {
+
+    let cookieValue = null;
+
+    if (document.cookie && document.cookie !== '') {
+
+        const cookies = document.cookie.split(';');
+
+        for (let i = 0; i < cookies.length; i++) {
+
+            const cookie = cookies[i].trim();
+
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+
+                cookieValue = decodeURIComponent(
+                    cookie.substring(name.length + 1)
+                );
+
+                break;
+
+            }
+        }
+    }
+
+    return cookieValue;
+
+}
+
+</script>
+
+    
 </body>
 
 </html>
