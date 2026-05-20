@@ -1,272 +1,153 @@
-{% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html>
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Project 1 - Supervised Learning Interface</title>
+
+    <title>Supervised ML Interface</title>
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="{% static 'project1/project1.css' %}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <style>
+
+        body{
+            font-family: Arial;
+            background:#f4f4f4;
+            padding:20px;
+        }
+
+        .card{
+            background:white;
+            padding:20px;
+            border-radius:10px;
+            margin-bottom:20px;
+        }
+
+        button{
+            padding:10px 20px;
+            background:#2563eb;
+            color:white;
+            border:none;
+            border-radius:5px;
+            cursor:pointer;
+        }
+
+        table{
+            width:100%;
+            border-collapse:collapse;
+        }
+
+        th,td{
+            border:1px solid #ddd;
+            padding:8px;
+        }
+
+        th{
+            background:#2563eb;
+            color:white;
+        }
+
+        #resultBox{
+            margin-top:20px;
+            font-size:20px;
+            color:green;
+        }
+
+    </style>
+
 </head>
 
 <body>
-    <div class="container">
-        <h1>Project 1: Supervised Learning Interface</h1>
 
-        <div id="message-area"></div>
+<h1>Supervised ML Interface</h1>
 
-        <section class="card">
-            <h2>Upload CSV</h2>
-            <form id="upload-form" enctype="multipart/form-data">
-                {% csrf_token %}
-                <div class="upload-row">
-                    <p class="upload-sub">Choose a CSV file</p>
-                    <label for="id_csv_file" class="file-label">
-                        <i class="fa-solid fa-file-arrow-up"></i>
-                        <span id="file-label-text">Upload File</span>
-                        {{ upload_form.csv_file }}
-                    </label>
-                </div>
-                <div class="form-actions">
-                    <button type="submit" id="upload-btn">Upload</button>
-                    <button type="button" id="reset-btn" class="reset-link">Reset</button>
-                    <button id="runModelBtn">Run ML Model</button>
+<!-- ================= UPLOAD ================= -->
 
-<div id="resultBox"></div>
-                </div>
-            </form>
-        </section>
+<div class="card">
 
-        <div id="data-sections">
-            {% if has_data %}
-            <section class="card">
-                <h2>Dataset Overview</h2>
-                <p><strong>Rows:</strong> {{ row_count }}</p>
-                <p><strong>Columns:</strong> {{ col_count }}</p>
-                <p><strong>Target column:</strong> {{ target_col }}</p>
-                <p><strong>Detected task type:</strong> {{ detected_task_type }}</p>
-            </section>
+    <h2>Upload CSV</h2>
 
-            <section class="card">
-                <h2>Data Preview</h2>
-                <div class="table-wrapper">
-                    <table>
-                        <thead>
-                            <tr>
-                                {% for col in columns %}
-                                <th>{{ col }}</th>
-                                {% endfor %}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for row in rows %}
-                            <tr>
-                                {% for value in row %}
-                                <td>{{ value }}</td>
-                                {% endfor %}
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </section>
+    <form id="uploadForm" enctype="multipart/form-data">
 
-            {% if scatter_datasets_json %}
-            <section class="card">
-                <h2>Scatter Plot</h2>
-                <p><strong>X-axis:</strong> {{ chart_x }}</p>
-                <p><strong>Y-axis:</strong> {{ chart_y }}</p>
-                <canvas id="scatterChart"></canvas>
-            </section>
-            {% else %}
-            <section class="card">
-                <h2>Scatter Plot</h2>
-                <p>At least two numeric feature columns are needed for plotting.</p>
-            </section>
-            {% endif %}
-            {% endif %}
-        </div>
-    </div>
+        {% csrf_token %}
 
-    {% if scatter_datasets_json %}
-    <script>
-        window.activeChart = new Chart(document.getElementById("scatterChart"), {
-            type: "scatter",
-            data: { datasets: "{{ scatter_datasets_json }}" },
-            options: {
-                responsive: true,
-                plugins: { legend: { display: true } },
-                scales: {
-                    x: { title: { display: true, text: "{{ chart_x }}" } },
-                    y: { title: { display: true, text: "{{ chart_y }}" } },
-                }
-            }
-        });
-    </script>
-    {% endif %}
+        <input type="file" name="csv_file" required>
 
-    <script>
-        const uploadForm = document.getElementById("upload-form");
-        const uploadBtn = document.getElementById("upload-btn");
-        const resetBtn = document.getElementById("reset-btn");
-        const msgArea = document.getElementById("message-area");
-        const dataSections = document.getElementById("data-sections");
-        const csrfToken = uploadForm.querySelector("[name=csrfmiddlewaretoken]").value;
+        <button type="submit">
+            Upload
+        </button>
 
-        function showMessage(text, type) {
-            msgArea.innerHTML = `<div class="message ${type}">${text}</div>`;
-            setTimeout(() => { msgArea.innerHTML = ""; }, 4000);
-        }
+        <button type="button" id="resetBtn">
+            Reset
+        </button>
 
-        function buildTableHTML(columns, rows) {
-            const ths = columns.map(c => `<th>${c}</th>`).join("");
-            const trs = rows.map(r =>
-                `<tr>${r.map(v => `<td>${v}</td>`).join("")}</tr>`
-            ).join("");
-            return `<table><thead><tr>${ths}</tr></thead><tbody>${trs}</tbody></table>`;
-        }
+    </form>
 
-        uploadForm.addEventListener("submit", async function (e) {
-            e.preventDefault();
-            uploadBtn.disabled = true;
-            uploadBtn.textContent = "Uploading…";
+</div>
 
-            try {
-                const res = await fetch("{% url 'project1:upload_csv' %}", {
-                    method: "POST",
-                    headers: { "X-CSRFToken": csrfToken },
-                    body: new FormData(uploadForm),
-                });
-                const data = await res.json();
 
-                if (!data.ok) { showMessage(data.error || "Upload failed.", "error"); return; }
+<!-- ================= DATA TABLE ================= -->
 
-                showMessage("CSV uploaded successfully.", "success");
+<div class="card">
 
-                let html = `
-                    <section class="card">
-                        <h2>Dataset Overview</h2>
-                        <p><strong>Rows:</strong> ${data.row_count}</p>
-                        <p><strong>Columns:</strong> ${data.col_count}</p>
-                        <p><strong>Target column:</strong> ${data.target_col}</p>
-                        <p><strong>Detected task type:</strong> ${data.detected_task_type}</p>
-                    </section>
-                    <section class="card">
-                        <h2>Data Preview</h2>
-                        <div class="table-wrapper">${buildTableHTML(data.columns, data.rows)}</div>
-                    </section>`;
+    <h2>Data Preview</h2>
 
-                if (data.scatter_datasets) {
-                    html += `<section class="card">
-                        <h2>Scatter Plot</h2>
-                        <p><strong>X-axis:</strong> ${data.chart_x}</p>
-                        <p><strong>Y-axis:</strong> ${data.chart_y}</p>
-                        <canvas id="scatterChart"></canvas>
-                    </section>`;
-                } else {
-                    html += `<section class="card">
-                        <h2>Scatter Plot</h2>
-                        <p>At least two numeric feature columns are needed for plotting.</p>
-                    </section>`;
-                }
+    <div id="tableArea"></div>
 
-                dataSections.innerHTML = html;
+</div>
 
-                if (data.scatter_datasets) {
-                    if (window.activeChart) { window.activeChart.destroy(); }
-                    window.activeChart = new Chart(document.getElementById("scatterChart"), {
-                        type: "scatter",
-                        data: { datasets: data.scatter_datasets },
-                        options: {
-                            responsive: true,
-                            plugins: { legend: { display: true } },
-                            scales: {
-                                x: { title: { display: true, text: data.chart_x } },
-                                y: { title: { display: true, text: data.chart_y } },
-                            }
-                        }
-                    });
-                }
-            } catch (err) {
-                showMessage("Network error: " + err.message, "error");
-            } finally {
-                uploadBtn.disabled = false;
-                uploadBtn.textContent = "Upload";
-            }
-        });
-        resetBtn.addEventListener("click", async function () {
-            try {
-                const res = await fetch("{% url 'project1:reset_session' %}", {
-                    method: "POST",
-                    headers: { "X-CSRFToken": csrfToken },
-                });
-                const data = await res.json();
 
-                if (!data.ok) { showMessage("Reset failed.", "error"); return; }
-                if (window.activeChart) { window.activeChart.destroy(); window.activeChart = null; }
-                dataSections.innerHTML = "";
-                uploadForm.reset();
-                document.getElementById("file-label-text").textContent = "Upload File";
-                showMessage("Session cleared.", "info");
+<!-- ================= SCATTER ================= -->
 
-            } catch (err) {
-                showMessage("Network error: " + err.message, "error");
-            }
-        });
+<div class="card">
 
-        document.getElementById("id_csv_file").addEventListener("change", function () {
-            const name = this.files[0] ? this.files[0].name : "Upload File";
-            document.getElementById("file-label-text").textContent = name;
-        });
+    <h2>Scatter Plot</h2>
 
-        
-    </script>
-    <script>
+    <canvas id="scatterChart"></canvas>
 
-document.getElementById("runModelBtn").addEventListener("click", function(e) {
+</div>
 
-    e.preventDefault();
 
-    fetch("/project1/run_model/", {
-        method: "POST",
-        headers: {
-            "X-CSRFToken": getCookie("csrftoken")
-        }
-    })
+<!-- ================= ML MODEL ================= -->
 
-    .then(response => response.json())
+<div class="card">
 
-    .then(data => {
+    <h2>Train ML Model</h2>
 
-        console.log("SERVER RESPONSE:", data);
+    <select id="modelSelect">
 
-        if (data.ok) {
+        <option value="logistic_regression">
+            Logistic Regression
+        </option>
 
-            document.getElementById("resultBox").innerHTML =
-                "Accuracy: " + data.result.score;
+        <option value="decision_tree">
+            Decision Tree
+        </option>
 
-        } else {
+        <option value="random_forest">
+            Random Forest
+        </option>
 
-            document.getElementById("resultBox").innerHTML =
-                "Error: " + data.error;
+        <option value="knn">
+            KNN
+        </option>
 
-        }
+    </select>
 
-    })
+    <button id="runModelBtn">
+        Run Model
+    </button>
 
-    .catch(error => {
+    <div id="resultBox"></div>
 
-        console.log("ERROR:", error);
+</div>
 
-        document.getElementById("resultBox").innerHTML =
-            "Request failed";
 
-    });
+<script>
 
-});
+let scatterChart = null;
 
+
+// ================= CSRF =================
 
 function getCookie(name) {
 
@@ -287,18 +168,216 @@ function getCookie(name) {
                 );
 
                 break;
-
             }
         }
     }
 
     return cookieValue;
-
 }
+
+
+// ================= UPLOAD =================
+
+document.getElementById("uploadForm")
+.addEventListener("submit", function(e){
+
+    e.preventDefault();
+
+    const formData = new FormData(this);
+
+    fetch("/project1/upload/", {
+
+        method: "POST",
+
+        headers: {
+            "X-CSRFToken": getCookie("csrftoken")
+        },
+
+        body: formData
+
+    })
+
+    .then(response => response.json())
+
+    .then(data => {
+
+        console.log(data);
+
+        if(!data.ok){
+
+            alert(data.error);
+
+            return;
+        }
+
+        // ================= TABLE =================
+
+        let html = "<table>";
+
+        html += "<tr>";
+
+        data.columns.forEach(col => {
+
+            html += `<th>${col}</th>`;
+
+        });
+
+        html += "</tr>";
+
+        data.rows.forEach(row => {
+
+            html += "<tr>";
+
+            row.forEach(cell => {
+
+                html += `<td>${cell}</td>`;
+
+            });
+
+            html += "</tr>";
+
+        });
+
+        html += "</table>";
+
+        document.getElementById("tableArea").innerHTML = html;
+
+
+        // ================= SCATTER =================
+
+        const ctx =
+            document.getElementById("scatterChart")
+            .getContext("2d");
+
+        if(scatterChart){
+
+            scatterChart.destroy();
+        }
+
+        scatterChart = new Chart(ctx, {
+
+            type: "scatter",
+
+            data: {
+
+                datasets: [{
+
+                    label: "Scatter Plot",
+
+                    data: data.scatter_data,
+
+                    backgroundColor: "blue",
+
+                    pointRadius: 5
+
+                }]
+            },
+
+            options: {
+
+                responsive: true,
+
+                scales: {
+
+                    x: {
+
+                        title: {
+
+                            display: true,
+
+                            text: data.chart_x
+                        }
+                    },
+
+                    y: {
+
+                        title: {
+
+                            display: true,
+
+                            text: data.chart_y
+                        }
+                    }
+                }
+            }
+        });
+
+    });
+
+});
+
+
+// ================= RUN MODEL =================
+
+document.getElementById("runModelBtn")
+.addEventListener("click", function(){
+
+    const model =
+        document.getElementById("modelSelect").value;
+
+    fetch("/project1/run_model/", {
+
+        method: "POST",
+
+        headers: {
+
+            "Content-Type":
+                "application/x-www-form-urlencoded",
+
+            "X-CSRFToken":
+                getCookie("csrftoken")
+        },
+
+        body: "model=" + model
+
+    })
+
+    .then(response => response.json())
+
+    .then(data => {
+
+        console.log(data);
+
+        if(!data.ok){
+
+            document.getElementById("resultBox")
+                .innerHTML = data.error;
+
+            return;
+        }
+
+        // IMPORTANT FIX
+
+        document.getElementById("resultBox")
+            .innerHTML =
+
+            "<h3>Result</h3>" +
+
+            "<b>Model:</b> " +
+
+            data.result.model +
+
+            "<br><br>" +
+
+            "<b>Accuracy:</b> " +
+
+            data.result.accuracy + "%";
+
+    });
+
+});
+
+
+// ================= RESET =================
+
+document.getElementById("resetBtn")
+.addEventListener("click", function(){
+
+    location.reload();
+
+});
 
 </script>
 
-    
 </body>
-
 </html>
