@@ -1,130 +1,49 @@
 import pandas as pd
-
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
-from sklearn.metrics import accuracy_score
-
-from sklearn.linear_model import LogisticRegression
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.neighbors import KNeighborsClassifier
-
-from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import accuracy_score, r2_score
+from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 
 
-def run_ml_pipeline(df, target_col, model_name):
+def run_ml_pipeline(df, target_col, task_type):
 
     df = df.copy()
 
-    # ================= REMOVE MISSING VALUES =================
-
-    df = df.dropna()
-
-    # ================= FEATURES & TARGET =================
-
     X = df.drop(columns=[target_col])
-
     y = df[target_col]
 
-    # ================= ENCODE CATEGORICAL FEATURES =================
+    # Encode categorical feature columns
+    for col in X.select_dtypes(include="object"):
+        X[col] = LabelEncoder().fit_transform(X[col].astype(str))
 
-    for col in X.select_dtypes(include=["object"]).columns:
-
-        le = LabelEncoder()
-
-        X[col] = le.fit_transform(X[col].astype(str))
-
-    # ================= ENCODE TARGET =================
-
-    if y.dtype == "object":
-
+    # Encode target if needed
+    if pd.api.types.is_object_dtype(y):
         y = LabelEncoder().fit_transform(y.astype(str))
 
-    # ================= TRAIN TEST SPLIT =================
-
     X_train, X_test, y_train, y_test = train_test_split(
-
         X,
         y,
-
-        test_size=0.3,
-
+        test_size=0.2,
         random_state=42,
-
-        stratify=y
+        stratify=y if task_type == "classification" else None
     )
 
-    # ================= FEATURE SCALING =================
-
-    scaler = StandardScaler()
-
-    X_train = scaler.fit_transform(X_train)
-
-    X_test = scaler.transform(X_test)
-
-    # ================= MODEL SELECTION =================
-
-    if model_name == "logistic_regression":
-
-        model = LogisticRegression(max_iter=1000)
-
-        model_label = "Logistic Regression"
-
-    elif model_name == "decision_tree":
-
-        model = DecisionTreeClassifier(
-            max_depth=5,
-            random_state=42
-        )
-
-        model_label = "Decision Tree"
-
-    elif model_name == "random_forest":
-
-        model = RandomForestClassifier(
-            n_estimators=100,
-            max_depth=5,
-            random_state=42
-        )
-
-        model_label = "Random Forest"
-
-    elif model_name == "knn":
-
-        model = KNeighborsClassifier(
-            n_neighbors=5
-        )
-
-        model_label = "KNN"
-
+    if task_type == "classification":
+        model = RandomForestClassifier(random_state=42)
     else:
-
-        return {
-
-            "model": "Invalid Model",
-
-            "accuracy": 0
-        }
-
-    # ================= TRAIN MODEL =================
+        model = RandomForestRegressor(random_state=42)
 
     model.fit(X_train, y_train)
+    preds = model.predict(X_test)
 
-    # ================= PREDICTIONS =================
-
-    predictions = model.predict(X_test)
-
-    # ================= ACCURACY =================
-
-    accuracy = accuracy_score(y_test, predictions)
-
-    accuracy = round(accuracy * 100, 2)
-
-    # ================= RETURN =================
+    if task_type == "classification":
+        score = accuracy_score(y_test, preds)
+        metric = "accuracy"
+    else:
+        score = r2_score(y_test, preds)
+        metric = "r2_score"
 
     return {
-
-        "model": model_label,
-
-        "accuracy": accuracy
+        "score": float(score),
+        "metric": metric
     }
