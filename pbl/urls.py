@@ -19,8 +19,10 @@ from django.contrib import admin
 from django.urls import include, path
 from django.conf import settings
 from django.conf.urls.static import static
+from django.shortcuts import redirect
 
 urlpatterns = [
+    path("", lambda request: redirect("home:index")),
     path("home/", include("home.urls")),
     path("admin/", admin.site.urls),
     path("demos/", include("demos.urls")),
