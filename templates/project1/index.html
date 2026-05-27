@@ -14,12 +14,11 @@
 <body>
     <div class="container">
         <h1>Project 1: Supervised Learning Interface</h1>
-
         <div id="message-area"></div>
 
         <section class="card">
             <h2>Upload CSV</h2>
-            <form id="upload-form" enctype="multipart/form-data">
+            <form id="upload-form" method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="upload-row">
                     <p class="upload-sub">Choose a CSV file</p>
@@ -32,9 +31,6 @@
                 <div class="form-actions">
                     <button type="submit" id="upload-btn">Upload</button>
                     <button type="button" id="reset-btn" class="reset-link">Reset</button>
-                    <button id="runModelBtn">Run ML Model</button>
-
-<div id="resultBox"></div>
                 </div>
             </form>
         </section>
@@ -86,219 +82,100 @@
                 <p>At least two numeric feature columns are needed for plotting.</p>
             </section>
             {% endif %}
+            <section class="card pipeline-section">
+                <div class="section-header">
+                    <h2>ML Pipeline Configuration</h2>
+                    <p>Select multiple machine learning models and compare their performance.</p>
+                </div>
+
+                <div class="pipeline-content">
+                    <div class="model-selection-card">
+                        <h3>Select Models</h3>
+
+                        <div class="model-grid">
+                            <label>
+                                <input type="checkbox" value="Logistic Regression">
+                                Logistic Regression
+                            </label>
+
+                            <label>
+                                <input type="checkbox" value="Random Forest">
+                                Random Forest
+                            </label>
+
+                            <label>
+                                <input type="checkbox" value="KNN">
+                                KNN
+                            </label>
+
+                            <label>
+                                <input type="checkbox" value="SVM">
+                                SVM
+                            </label>
+
+                            <label>
+                                <input type="checkbox" value="Decision Tree">
+                                Decision Tree
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="settings-card">
+                        <h3>Pipeline Settings</h3>
+                        <div class="slider-group">
+                            <label>
+                                Test Size:
+                                <span id="splitValue">20%</span>
+                            </label>
+
+                            <input type="range" id="testSizeSlider" min="10" max="40" value="20">
+                        </div>
+                        <div class="hyperparameter-group">
+                            <label>
+                                KNN K values
+                                <input type="text" id="knnValues" value="1,3,5,7">
+                            </label>
+
+                            <label>
+                                Random Forest trees
+                                <input type="text" id="rfValues" value="50,100,200">
+                            </label>
+
+                            <label>
+                                Decision Tree depths
+                                <input type="text" id="dtDepths" value="2,4,6">
+                            </label>
+                        </div>
+                        <button type="button" id="runModelBtn">Run ML Pipeline</button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="card">
+                <h2>Model Results</h2>
+                <div id="resultBox"></div>
+                <div class="chart-wrapper">
+                    <canvas id="comparisonChart"></canvas>
+                </div>
+            </section>
             {% endif %}
         </div>
     </div>
 
-    {% if scatter_datasets_json %}
     <script>
-        window.activeChart = new Chart(document.getElementById("scatterChart"), {
-            type: "scatter",
-            data: { datasets: "{{ scatter_datasets_json }}" },
-            options: {
-                responsive: true,
-                plugins: { legend: { display: true } },
-                scales: {
-                    x: { title: { display: true, text: "{{ chart_x }}" } },
-                    y: { title: { display: true, text: "{{ chart_y }}" } },
-                }
-            }
-        });
+        window.project1Config = {
+            uploadUrl: "{% url 'project1:upload_csv' %}",
+            resetUrl: "{% url 'project1:reset_session' %}",
+            runModelUrl: "{% url 'project1:run_model' %}",
+            csrfToken: "{{ csrf_token }}",
+            hasScatterData: "{{ scatter_datasets_json|yesno:'true,false' }}",
+            scatterDatasetsJson: "{{ scatter_datasets_json|default:''|escapejs }}",
+            chartX: "{{ chart_x|default:''|escapejs }}",
+            chartY: "{{ chart_y|default:''|escapejs }}"
+        };
     </script>
-    {% endif %}
 
-    <script>
-        const uploadForm = document.getElementById("upload-form");
-        const uploadBtn = document.getElementById("upload-btn");
-        const resetBtn = document.getElementById("reset-btn");
-        const msgArea = document.getElementById("message-area");
-        const dataSections = document.getElementById("data-sections");
-        const csrfToken = uploadForm.querySelector("[name=csrfmiddlewaretoken]").value;
-
-        function showMessage(text, type) {
-            msgArea.innerHTML = `<div class="message ${type}">${text}</div>`;
-            setTimeout(() => { msgArea.innerHTML = ""; }, 4000);
-        }
-
-        function buildTableHTML(columns, rows) {
-            const ths = columns.map(c => `<th>${c}</th>`).join("");
-            const trs = rows.map(r =>
-                `<tr>${r.map(v => `<td>${v}</td>`).join("")}</tr>`
-            ).join("");
-            return `<table><thead><tr>${ths}</tr></thead><tbody>${trs}</tbody></table>`;
-        }
-
-        uploadForm.addEventListener("submit", async function (e) {
-            e.preventDefault();
-            uploadBtn.disabled = true;
-            uploadBtn.textContent = "Uploading…";
-
-            try {
-                const res = await fetch("{% url 'project1:upload_csv' %}", {
-                    method: "POST",
-                    headers: { "X-CSRFToken": csrfToken },
-                    body: new FormData(uploadForm),
-                });
-                const data = await res.json();
-
-                if (!data.ok) { showMessage(data.error || "Upload failed.", "error"); return; }
-
-                showMessage("CSV uploaded successfully.", "success");
-
-                let html = `
-                    <section class="card">
-                        <h2>Dataset Overview</h2>
-                        <p><strong>Rows:</strong> ${data.row_count}</p>
-                        <p><strong>Columns:</strong> ${data.col_count}</p>
-                        <p><strong>Target column:</strong> ${data.target_col}</p>
-                        <p><strong>Detected task type:</strong> ${data.detected_task_type}</p>
-                    </section>
-                    <section class="card">
-                        <h2>Data Preview</h2>
-                        <div class="table-wrapper">${buildTableHTML(data.columns, data.rows)}</div>
-                    </section>`;
-
-                if (data.scatter_datasets) {
-                    html += `<section class="card">
-                        <h2>Scatter Plot</h2>
-                        <p><strong>X-axis:</strong> ${data.chart_x}</p>
-                        <p><strong>Y-axis:</strong> ${data.chart_y}</p>
-                        <canvas id="scatterChart"></canvas>
-                    </section>`;
-                } else {
-                    html += `<section class="card">
-                        <h2>Scatter Plot</h2>
-                        <p>At least two numeric feature columns are needed for plotting.</p>
-                    </section>`;
-                }
-
-                dataSections.innerHTML = html;
-
-                if (data.scatter_datasets) {
-                    if (window.activeChart) { window.activeChart.destroy(); }
-                    window.activeChart = new Chart(document.getElementById("scatterChart"), {
-                        type: "scatter",
-                        data: { datasets: data.scatter_datasets },
-                        options: {
-                            responsive: true,
-                            plugins: { legend: { display: true } },
-                            scales: {
-                                x: { title: { display: true, text: data.chart_x } },
-                                y: { title: { display: true, text: data.chart_y } },
-                            }
-                        }
-                    });
-                }
-            } catch (err) {
-                showMessage("Network error: " + err.message, "error");
-            } finally {
-                uploadBtn.disabled = false;
-                uploadBtn.textContent = "Upload";
-            }
-        });
-        resetBtn.addEventListener("click", async function () {
-            try {
-                const res = await fetch("{% url 'project1:reset_session' %}", {
-                    method: "POST",
-                    headers: { "X-CSRFToken": csrfToken },
-                });
-                const data = await res.json();
-
-                if (!data.ok) { showMessage("Reset failed.", "error"); return; }
-                if (window.activeChart) { window.activeChart.destroy(); window.activeChart = null; }
-                dataSections.innerHTML = "";
-                uploadForm.reset();
-                document.getElementById("file-label-text").textContent = "Upload File";
-                showMessage("Session cleared.", "info");
-
-            } catch (err) {
-                showMessage("Network error: " + err.message, "error");
-            }
-        });
-
-        document.getElementById("id_csv_file").addEventListener("change", function () {
-            const name = this.files[0] ? this.files[0].name : "Upload File";
-            document.getElementById("file-label-text").textContent = name;
-        });
-
-        
-    </script>
-    <script>
-
-document.getElementById("runModelBtn").addEventListener("click", function(e) {
-
-    e.preventDefault();
-
-    fetch("/project1/run_model/", {
-        method: "POST",
-        headers: {
-            "X-CSRFToken": getCookie("csrftoken")
-        }
-    })
-
-    .then(response => response.json())
-
-    .then(data => {
-
-        console.log("SERVER RESPONSE:", data);
-
-        if (data.ok) {
-
-            document.getElementById("resultBox").innerHTML =
-                "Accuracy: " + data.result.score;
-
-        } else {
-
-            document.getElementById("resultBox").innerHTML =
-                "Error: " + data.error;
-
-        }
-
-    })
-
-    .catch(error => {
-
-        console.log("ERROR:", error);
-
-        document.getElementById("resultBox").innerHTML =
-            "Request failed";
-
-    });
-
-});
-
-
-function getCookie(name) {
-
-    let cookieValue = null;
-
-    if (document.cookie && document.cookie !== '') {
-
-        const cookies = document.cookie.split(';');
-
-        for (let i = 0; i < cookies.length; i++) {
-
-            const cookie = cookies[i].trim();
-
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-
-                cookieValue = decodeURIComponent(
-                    cookie.substring(name.length + 1)
-                );
-
-                break;
-
-            }
-        }
-    }
-
-    return cookieValue;
-
-}
-
-</script>
-
-    
+    <script src="{% static 'project1/automl_dashboard.js' %}"></script>
 </body>
 
 </html>
