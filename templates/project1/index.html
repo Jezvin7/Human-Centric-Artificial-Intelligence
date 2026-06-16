@@ -6,9 +6,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Project 1 - Supervised Learning Interface</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="{% static 'libs/chartjs/chart.umd.min.js' %}"></script>
     <link rel="stylesheet" href="{% static 'project1/project1.css' %}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 
 <body>
@@ -23,7 +22,7 @@
                 <div class="upload-row">
                     <p class="upload-sub">Choose a CSV file</p>
                     <label for="id_csv_file" class="file-label">
-                        <i class="fa-solid fa-file-arrow-up"></i>
+                        <img src="{% static 'icons/file-upload.svg' %}" alt="Upload" class="upload-icon">
                         <span id="file-label-text">Upload File</span>
                         {{ upload_form.csv_file }}
                     </label>
