@@ -26,8 +26,13 @@ def load_dataframe_from_session(request):
     df_json = request.session.get("project1_csv")
     if not df_json:
         return None
-    return pd.read_json(StringIO(df_json), orient="split")
-
+    try:
+        return pd.read_json(StringIO(df_json), orient="split")
+    except ValueError:
+        # Remove old/corrupted CSV data from browser session
+        request.session.pop("project1_csv", None)
+        request.session.modified = True
+        return None
 
 def detect_task_type(df, target_col):
     y = df[target_col]

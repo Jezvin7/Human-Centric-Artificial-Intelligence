@@ -362,3 +362,9 @@ input[type="file"] {
         transform: rotate(360deg);
     }
 }
+
+.upload-icon {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+}
