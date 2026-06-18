@@ -14,3 +14,11 @@ This repository is a centralized Django-based web application designed to host f
   * User-controlled train/test split and basic hyperparameter testing.
   * Model evaluation with relevant metrics and performance charts.
   * Validation, session reset, and loading feedback.
+
+# Project 2: Explainability
+**Key Functionalities**
+* Uses the Palmer Penguins dataset to predict penguin species.
+* Implements interpretable model selection using decision trees and logistic regression.
+* Provides a λ slider to balance test accuracy and model complexity.
+* Displays selected model accuracy, complexity, and selection score.
+* Visualizes the selected decision tree with a clean, readable plot.
