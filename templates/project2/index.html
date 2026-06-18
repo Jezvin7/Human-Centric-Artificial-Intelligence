@@ -1,0 +1,229 @@
+{% load static %}
+{% load project2_extras %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Project 2 - Explainability</title>
+    <link rel="stylesheet" href="{% static 'project2/project2.css' %}">
+</head>
+
+<body>
+    <main class="page-container">
+
+        <section class="hero-section">
+            <h1>Project 2: Explainability</h1>
+            <p>
+                This project uses the Palmer Penguins dataset. The goal is to predict the
+                penguin species using interpretable models and compare accuracy with model complexity.
+            </p>
+        </section>
+
+        <section class="card">
+            <h2>Dataset Overview</h2>
+
+            <p>
+                The dataset contains eight features:
+            </p>
+
+            <ul>
+                <li>species</li>
+                <li>island</li>
+                <li>sex</li>
+                <li>year</li>
+                <li>bill length mm</li>
+                <li>bill depth mm</li>
+                <li>flipper length mm</li>
+                <li>body mass g</li>
+            </ul>
+
+            <p>
+                The target feature is <strong>species</strong>, which has three classes:
+                <strong>Adelie</strong>, <strong>Gentoo</strong>, and <strong>Chinstrap</strong>.
+            </p>
+        </section>
+
+        <section class="card">
+            <h2>Model Selection and Regularization</h2>
+
+            <form method="get" class="control-form">
+
+                <div class="form-group">
+                    <label for="model_type">Model type</label>
+                    <select name="model_type" id="model_type">
+                        <option value="tree" {% if model_type == "tree" %}selected{% endif %}>
+                            Decision Tree
+                        </option>
+                        <option value="logistic" {% if model_type == "logistic" %}selected{% endif %}>
+                            Logistic Regression
+                        </option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="lambda_value">
+                        Regularization λ:
+                        <strong>{{ lambda_value }}</strong>
+                    </label>
+
+                    <input
+                        type="range"
+                        id="lambda_value"
+                        name="lambda_value"
+                        min="0"
+                        max="0.05"
+                        step="0.001"
+                        value="{{ lambda_value }}"
+                        oninput="document.getElementById('lambda_output').innerText = this.value"
+                    >
+
+                    <p>
+                        Current λ:
+                        <span id="lambda_output">{{ lambda_value }}</span>
+                    </p>
+                </div>
+
+                <button type="submit">Update Model</button>
+            </form>
+        </section>
+
+        <section class="card">
+            <h2>Selected Model Result</h2>
+
+            <div class="result-grid">
+                <div>
+                    <span class="metric-label">Model type</span>
+                    <span class="metric-value">
+                        {% if model_type == "tree" %}
+                            Decision Tree
+                        {% else %}
+                            Logistic Regression
+                        {% endif %}
+                    </span>
+                </div>
+
+                <div>
+                    <span class="metric-label">Test accuracy</span>
+                    <span class="metric-value">{{ accuracy }}</span>
+                </div>
+
+                <div>
+                    <span class="metric-label">Complexity Ω(f)</span>
+                    <span class="metric-value">{{ complexity }}</span>
+                </div>
+
+                <div>
+                    <span class="metric-label">{{ parameter_name }}</span>
+                    <span class="metric-value">{{ parameter_value }}</span>
+                </div>
+
+                <div>
+                    <span class="metric-label">Selection score</span>
+                    <span class="metric-value">{{ selection_score }}</span>
+                </div>
+            </div>
+
+            {% if model_type == "tree" %}
+                <p class="explanation">
+                    For the decision tree, the complexity measure Ω(f) is the number of leaves.
+                    The selected model maximizes:
+                    <strong>test accuracy − λ × number of leaves</strong>.
+                </p>
+            {% else %}
+                <p class="explanation">
+                    For logistic regression, the complexity measure Ω(f) is the number of
+                    non-zero coefficients. This works well with L1 regularization because
+                    L1 can shrink some coefficients exactly to zero.
+                    The selected model maximizes:
+                    <strong>test accuracy − λ × number of non-zero coefficients</strong>.
+                </p>
+            {% endif %}
+        </section>
+
+        {% if model_type == "tree" %}
+            <section class="card">
+                <h2>Decision Tree Visualization</h2>
+
+                <p>
+                    This tree is the selected decision tree after applying the λ-based
+                    accuracy-complexity trade-off.
+                </p>
+
+                <div class="tree-wrapper">
+                    <img src="{{ tree_image }}" alt="Decision Tree">
+                </div>
+            </section>
+        {% endif %}
+
+        {% if model_type == "logistic" %}
+            <section class="card">
+                <h2>Logistic Regression Coefficients</h2>
+
+                <p>
+                    Larger positive coefficients increase the probability of the corresponding
+                    species, while negative coefficients reduce it.
+                </p>
+
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Feature</th>
+                                {% for class_name in coefficient_classes %}
+                                    <th>{{ class_name }}</th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for row in coefficient_rows %}
+                                <tr>
+                                    <td>{{ row.feature }}</td>
+                                    {% for class_name in coefficient_classes %}
+                                        <td>{{ row|get_item:class_name }}</td>
+                                    {% endfor %}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        {% endif %}
+
+        <section class="card">
+            <h2>Trained Models and Selection Scores</h2>
+
+            <p>
+                The table below shows the trained models used for the λ-based selection.
+                <strong>test accuracy − λΩ(f)</strong>.
+            </p>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>{{ parameter_name }}</th>
+                            <th>Test Accuracy</th>
+                            <th>Complexity Ω(f)</th>
+                            <th>Selection Score</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for candidate in candidate_summary %}
+                            <tr>
+                                <td>{{ candidate.parameter_value }}</td>
+                                <td>{{ candidate.accuracy }}</td>
+                                <td>{{ candidate.complexity }}</td>
+                                <td>{{ candidate.selection_score }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+
+
+    </main>
+</body>
+</html>
