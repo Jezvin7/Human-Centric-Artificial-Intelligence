@@ -11,6 +11,9 @@ from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.pipeline import Pipeline
 from sklearn.metrics import accuracy_score
 
+import numpy as np
+import pandas as pd
+
 
 def make_one_hot_encoder():
     """
@@ -279,3 +282,132 @@ def get_logistic_coefficients(model):
         rows.append(row)
 
     return rows, class_names
+
+# ==========================================
+# ADDED FOR TASK 4 & 5: Backend Logic
+# ==========================================
+
+def calculate_mad(series):
+    """Helper function to calculate Median Absolute Deviation without SciPy."""
+    median = series.median()
+    mad = np.median(np.abs(series - median))
+    return mad if mad > 0 else 1e-3  # Prevent division by zero
+
+def generate_counterfactuals(model, x_instance, target_class, X_train, numerical_features, categorical_features, k=5, N=1000):
+    """
+    Task 4: Generates counterfactual explanations using MAD-weighted L1 distance.
+    """
+    # Calculate MAD for all numerical features based on the training set
+    mad_values = {feat: calculate_mad(X_train[feat].dropna()) for feat in numerical_features}
+    
+    # 1. Randomly sample N points locally around x
+    synth_data = pd.DataFrame(index=range(N), columns=X_train.columns)
+    
+    for feat in numerical_features:
+        std = X_train[feat].std()
+        # Inject Gaussian noise for continuous features
+        base_val = x_instance[feat].values[0]
+        synth_data[feat] = base_val + np.random.normal(0, std, N)
+        
+    for feat in categorical_features:
+        # Randomly sample from available categories to noise categorical/binary data
+        unique_vals = X_train[feat].dropna().unique()
+        synth_data[feat] = np.random.choice(unique_vals, N)
+        
+    # 2. Check whether the prediction has the desired class
+    predictions = model.predict(synth_data)
+    valid_idx = np.where(predictions == target_class)[0]
+    
+    if len(valid_idx) == 0:
+        return [] 
+        
+    valid_samples = synth_data.iloc[valid_idx].copy()
+    
+    # 3. Rank those that have the desired class by MAD-weighted L1-distance
+    distances = np.zeros(len(valid_samples))
+    
+    for i, (_, row) in enumerate(valid_samples.iterrows()):
+        dist = 0
+        for feat in numerical_features:
+            dist += abs(row[feat] - x_instance[feat].values[0]) / mad_values[feat]
+        
+        for feat in categorical_features:
+            if row[feat] != x_instance[feat].values[0]:
+                dist += 1.0  # L1 analog penalty for categorical shift
+        distances[i] = dist
+        
+    valid_samples['distance'] = distances
+    
+    # 4. Return the best k counterfactuals
+    best_cf = valid_samples.sort_values('distance').head(k)
+    return best_cf.to_dict('records')
+
+
+def compute_pdp(model, X_train, feature_name, class_index, grid_resolution=50):
+    """
+    Task 5: Global Model-Agnostic Methods - Partial Dependence Plot (PDP)
+    """
+    min_val = X_train[feature_name].min()
+    max_val = X_train[feature_name].max()
+    grid_vals = np.linspace(min_val, max_val, grid_resolution)
+    
+    pdp_values = []
+    X_temp = X_train.copy()
+    
+    for val in grid_vals:
+        X_temp[feature_name] = val
+        # Predict probabilities for the entire dataset with the forced feature value
+        probas = model.predict_proba(X_temp)
+        # Average the probability for the specific species class
+        avg_proba = np.mean(probas[:, class_index])
+        pdp_values.append(avg_proba)
+        
+    return grid_vals.tolist(), pdp_values
+
+
+def compute_ale(model, X_train, feature_name, class_index, bins=10):
+    """
+    Task 5: Accumulated Local Effects (ALE) using discretization.
+    """
+    # Discretize the feature into quantiles (bins)
+    quantiles = np.linspace(0, 1, bins + 1)
+    z_bounds = np.quantile(X_train[feature_name].dropna(), quantiles)
+    z_bounds = np.unique(z_bounds) # Ensure bounds are strictly increasing
+    
+    ale_values = np.zeros(len(z_bounds) - 1)
+    
+    for k in range(1, len(z_bounds)):
+        z_lower = z_bounds[k-1]
+        z_upper = z_bounds[k]
+        
+        # Isolate samples that naturally fall into this bin
+        if k == len(z_bounds) - 1:
+            in_bin = (X_train[feature_name] >= z_lower) & (X_train[feature_name] <= z_upper)
+        else:
+            in_bin = (X_train[feature_name] >= z_lower) & (X_train[feature_name] < z_upper)
+            
+        X_bin = X_train[in_bin].copy()
+        n_k = len(X_bin)
+        
+        if n_k > 0:
+            # Replace the feature with the bin boundaries to compute the local effect
+            X_upper = X_bin.copy()
+            X_upper[feature_name] = z_upper
+            X_lower = X_bin.copy()
+            X_lower[feature_name] = z_lower
+            
+            probas_upper = model.predict_proba(X_upper)[:, class_index]
+            probas_lower = model.predict_proba(X_lower)[:, class_index]
+            
+            ale_values[k-1] = np.mean(probas_upper - probas_lower)
+            
+    # Accumulate the effects
+    ale_accumulated = np.cumsum(ale_values)
+    
+    # Center the plot
+    ale_centered = ale_accumulated - np.mean(ale_accumulated)
+    
+    # Insert 0 at the start to align with the lower bound of the first bin
+    final_ale = np.insert(ale_centered, 0, 0)
+    
+    return z_bounds.tolist(), final_ale.tolist()
