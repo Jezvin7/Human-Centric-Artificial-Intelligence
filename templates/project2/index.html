@@ -221,9 +221,200 @@
                 </table>
             </div>
         </section>
+              <section class="card">
+            <h2> Counterfactual Explanations</h2>
+            
+            <form method="get" class="control-form">
+                <input type="hidden" name="model_type" value="{{ model_type }}">
+                <input type="hidden" name="lambda_value" value="{{ lambda_value }}">
+                {% if plot_feature %}<input type="hidden" name="plot_feature" value="{{ plot_feature }}">{% endif %}
 
+                <div class="form-group">
+                    <label for="cf_index">Test Set Index (e.g., 0 to 80):</label>
+                    <input type="number" id="cf_index" name="cf_index" value="{{ cf_index|default:0 }}" min="0">
+                </div>
 
+                <div class="form-group">
+                    <label for="target_class">Desired Target Species:</label>
+                    <select name="target_class" id="target_class">
+                        {% for cls in classes %}
+                            <option value="{{ cls }}" {% if target_class == cls %}selected{% endif %}>{{ cls }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <button type="submit">Generate Counterfactuals</button>
+            </form>
+
+            {% if original_instance %}
+                <div style="margin-top: 20px;">
+                    <h3>Original Instance</h3>
+                    <p><strong>Current Model Prediction:</strong> {{ original_instance.current_prediction }}</p>
+                    <p><em>(Showing features to compare against)</em></p>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    {% for key in original_instance.keys %}
+                                        {% if key != 'current_prediction' %}<th>{{ key }}</th>{% endif %}
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    {% for key, value in original_instance.items %}
+                                        {% if key != 'current_prediction' %}<td>{{ value|floatformat:2|default:value }}</td>{% endif %}
+                                    {% endfor %}
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            {% endif %}
+
+            {% if counterfactuals %}
+                <div style="margin-top: 20px;">
+                    <h3>Generated Counterfactuals (Target: {{ target_class }})</h3>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Distance (L1 MAD)</th>
+                                    {% for key in original_instance.keys %}
+                                        {% if key != 'current_prediction' %}<th>{{ key }}</th>{% endif %}
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for cf in counterfactuals %}
+                                    <tr>
+                                        <td><strong>{{ cf.distance|floatformat:3 }}</strong></td>
+                                        {% for key in original_instance.keys %}
+                                            {% if key != 'current_prediction' %}
+                                                <td {% if cf|get_item:key != original_instance|get_item:key %}style="color: red; font-weight: bold;"{% endif %}>
+                                                    {{ cf|get_item:key|floatformat:2 }}
+                                                </td>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            {% elif cf_index and target_class %}
+                <p style="margin-top: 20px; color: #d9534f;">
+                    No valid counterfactuals found for target <strong>{{ target_class }}</strong> within the current noise variance. Try selecting a different instance or target class!
+                </p>
+            {% endif %}
+        </section>
+
+        <section class="card">
+            <h2>Global Feature Effect Plots</h2>
+            
+            <form method="get" class="control-form" style="margin-bottom: 20px;">
+                <input type="hidden" name="model_type" value="{{ model_type }}">
+                <input type="hidden" name="lambda_value" value="{{ lambda_value }}">
+                {% if cf_index %}<input type="hidden" name="cf_index" value="{{ cf_index }}">{% endif %}
+                {% if target_class %}<input type="hidden" name="target_class" value="{{ target_class }}">{% endif %}
+
+                <div class="form-group">
+                    <label for="plot_feature">Select Numerical Feature to Plot:</label>
+                    <select name="plot_feature" id="plot_feature" onchange="this.form.submit()">
+                        {% for feature in numerical_features %}
+                            <option value="{{ feature }}" {% if plot_feature == feature %}selected{% endif %}>{{ feature }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </form>
+
+            <div style="display: flex; flex-wrap: wrap; gap: 20px;">
+                <div style="flex: 1; min-width: 400px; background: white; padding: 15px; border-radius: 8px;">
+                    <canvas id="pdpChart"></canvas>
+                </div>
+                <div style="flex: 1; min-width: 400px; background: white; padding: 15px; border-radius: 8px;">
+                    <canvas id="aleChart"></canvas>
+                </div>
+            </div>
+        </section>
 
     </main>
+
+    {{ pdp_data|json_script:"pdp-data" }}
+    {{ ale_data|json_script:"ale-data" }}
+
+    <script src="{% static 'libs/chartjs/chart.umd.min.js' %}"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Retrieve safely injected JSON data
+            const pdpDataEl = document.getElementById('pdp-data');
+            const aleDataEl = document.getElementById('ale-data');
+            
+            if (pdpDataEl && aleDataEl) {
+                const pdpData = JSON.parse(pdpDataEl.textContent);
+                const aleData = JSON.parse(aleDataEl.textContent);
+                
+                const plotFeatureEl = document.getElementById('plot_feature');
+                const featureName = plotFeatureEl ? plotFeatureEl.value : 'Feature';
+                const colors = { 'Adelie': '#ff7f0e', 'Chinstrap': '#2ca02c', 'Gentoo': '#1f77b4' };
+
+                // Helper to build datasets for Chart.js
+                function buildDatasets(dataObj) {
+                    return Object.keys(dataObj).map(cls => ({
+                        label: cls,
+                        data: dataObj[cls].y,
+                        borderColor: colors[cls] || '#000000',
+                        backgroundColor: colors[cls] || '#000000',
+                        fill: false,
+                        tension: 0.1
+                    }));
+                }
+
+                // Create PDP Chart
+                if (Object.keys(pdpData).length > 0) {
+                    const ctxPdp = document.getElementById('pdpChart').getContext('2d');
+                    new Chart(ctxPdp, {
+                        type: 'line',
+                        data: {
+                            labels: pdpData[Object.keys(pdpData)[0]].x.map(val => val.toFixed(2)),
+                            datasets: buildDatasets(pdpData)
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                title: { display: true, text: `Partial Dependence Plot (PDP) - ${featureName}` }
+                            },
+                            scales: {
+                                x: { title: { display: true, text: featureName } },
+                                y: { title: { display: true, text: 'Average Probability' }, min: 0, max: 1 }
+                            }
+                        }
+                    });
+                }
+
+                // Create ALE Chart
+                if (Object.keys(aleData).length > 0) {
+                    const ctxAle = document.getElementById('aleChart').getContext('2d');
+                    new Chart(ctxAle, {
+                        type: 'line',
+                        data: {
+                            labels: aleData[Object.keys(aleData)[0]].x.map(val => val.toFixed(2)),
+                            datasets: buildDatasets(aleData)
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                title: { display: true, text: `Accumulated Local Effects (ALE) - ${featureName}` }
+                            },
+                            scales: {
+                                x: { title: { display: true, text: featureName } },
+                                y: { title: { display: true, text: 'Main Effect' } }
+                            }
+                        }
+                    });
+                }
+            }
+        });
+    </script>
 </body>
 </html>
