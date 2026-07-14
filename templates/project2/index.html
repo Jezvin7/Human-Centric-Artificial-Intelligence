@@ -343,7 +343,7 @@
     {{ pdp_data|json_script:"pdp-data" }}
     {{ ale_data|json_script:"ale-data" }}
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="{% static 'libs/chartjs/chart.umd.min.js' %}"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             // Retrieve safely injected JSON data
