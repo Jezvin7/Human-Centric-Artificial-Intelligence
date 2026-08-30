@@ -305,9 +305,12 @@ def generate_counterfactuals(model, x_instance, target_class, X_train, numerical
     
     for feat in numerical_features:
         std = X_train[feat].std()
-        # Inject Gaussian noise for continuous features
         base_val = x_instance[feat].values[0]
-        synth_data[feat] = base_val + np.random.normal(0, std, N)
+        sampled_values = base_val + np.random.normal(0, std, N)
+        # Keep generated values within realistic dataset range
+        min_val = X_train[feat].min()
+        max_val = X_train[feat].max()
+        synth_data[feat] = np.clip(sampled_values, min_val, max_val)
         
     for feat in categorical_features:
         # Randomly sample from available categories to noise categorical/binary data
