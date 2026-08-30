@@ -74,7 +74,7 @@ def index(request):
     
     original_instance = None
     counterfactuals = []
-
+    cf_same_as_prediction = False
     if cf_index is not None and target_class:
         try:
             cf_index = int(cf_index)
@@ -96,9 +96,11 @@ def index(request):
                         X_train=X_train,
                         numerical_features=numerical_features,
                         categorical_features=categorical_features,
-                        k=5,     # Top 5 closest counterfactuals
-                        N=1500   # Number of samples
+                        k=5,
+                        N=1500
                     )
+                else:
+                    cf_same_as_prediction = True
         except ValueError:
             pass
 
@@ -143,6 +145,7 @@ def index(request):
         "target_class": target_class,
         "original_instance": original_instance,
         "counterfactuals": counterfactuals,
+        "cf_same_as_prediction": cf_same_as_prediction,
         "plot_feature": plot_feature,
         "pdp_data": pdp_data,
         "ale_data": ale_data,
