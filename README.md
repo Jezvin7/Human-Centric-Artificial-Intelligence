@@ -22,3 +22,5 @@ This repository is a centralized Django-based web application designed to host f
 * Provides a λ slider to balance test accuracy and model complexity.
 * Displays selected model accuracy, complexity, and selection score.
 * Visualizes the selected decision tree with a clean, readable plot.
+* Generates counterfactual explanations for selected test examples and target species.
+* Provides PDP and ALE feature effect plots for numerical features.
