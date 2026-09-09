@@ -1,0 +1,12 @@
+Django>=5.2,<6.1
+
+numpy
+pandas
+scikit-learn
+joblib
+
+datasets
+pyarrow
+
+matplotlib
+reportlab

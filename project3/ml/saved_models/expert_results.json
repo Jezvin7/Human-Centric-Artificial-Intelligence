@@ -1,0 +1,85 @@
+{
+    "expert_name": "Business & Technology Specialist",
+    "description": "A simulated domain expert specialized in Business and Sci/Tech news. The expert is deliberately less reliable on World and Sports articles.",
+    "accuracy": 0.8102631578947368,
+    "accuracy_percent": 81.03,
+    "class_names": [
+        "World",
+        "Sports",
+        "Business",
+        "Sci/Tech"
+    ],
+    "competence_profile": {
+        "World": 0.7,
+        "Sports": 0.65,
+        "Business": 0.97,
+        "Sci/Tech": 0.96
+    },
+    "classification_report": {
+        "World": {
+            "precision": 0.7927492447129909,
+            "recall": 0.6905263157894737,
+            "f1-score": 0.7381153305203938,
+            "support": 1900.0
+        },
+        "Sports": {
+            "precision": 0.8907185628742516,
+            "recall": 0.6263157894736842,
+            "f1-score": 0.7354758961681088,
+            "support": 1900.0
+        },
+        "Business": {
+            "precision": 0.7764106915570641,
+            "recall": 0.9631578947368421,
+            "f1-score": 0.8597603946441156,
+            "support": 1900.0
+        },
+        "Sci/Tech": {
+            "precision": 0.8108348134991119,
+            "recall": 0.9610526315789474,
+            "f1-score": 0.8795761078998073,
+            "support": 1900.0
+        },
+        "accuracy": 0.8102631578947368,
+        "macro avg": {
+            "precision": 0.8176783281608546,
+            "recall": 0.8102631578947368,
+            "f1-score": 0.8032319323081064,
+            "support": 7600.0
+        },
+        "weighted avg": {
+            "precision": 0.8176783281608545,
+            "recall": 0.8102631578947368,
+            "f1-score": 0.8032319323081064,
+            "support": 7600.0
+        }
+    },
+    "confusion_matrix": [
+        [
+            1312,
+            100,
+            287,
+            201
+        ],
+        [
+            304,
+            1190,
+            202,
+            204
+        ],
+        [
+            27,
+            22,
+            1830,
+            21
+        ],
+        [
+            12,
+            24,
+            38,
+            1826
+        ]
+    ],
+    "train_samples": 120000,
+    "test_samples": 7600
+}

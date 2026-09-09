@@ -1,0 +1,57 @@
+{
+    "strategy": "Learned expert competence compared against AI confidence",
+    "deferral_margin": 0.0,
+    "ai_accuracy": 0.9186842105263158,
+    "ai_accuracy_percent": 91.87,
+    "expert_accuracy": 0.8102631578947368,
+    "expert_accuracy_percent": 81.03,
+    "team_accuracy": 0.950921052631579,
+    "team_accuracy_percent": 95.09,
+    "coverage": 0.8217105263157894,
+    "coverage_percent": 82.17,
+    "deferral_rate": 0.17828947368421053,
+    "deferral_rate_percent": 17.83,
+    "num_test_samples": 7600,
+    "num_ai_handled": 6245,
+    "num_deferred": 1355,
+    "ai_covered_accuracy": 0.9580464371497198,
+    "expert_deferred_accuracy": 0.9180811808118081,
+    "useful_deferrals": 314,
+    "harmful_deferrals": 69,
+    "useful_deferral_rate": 0.23173431734317343,
+    "harmful_deferral_rate": 0.05092250922509225,
+    "routing_accuracy": 0.8457894736842105,
+    "routing_accuracy_percent": 84.58,
+    "oracle_accuracy": 0.9894736842105263,
+    "oracle_accuracy_percent": 98.95,
+    "class_results": [
+        {
+            "class": "World",
+            "samples": 1900,
+            "deferred": 144,
+            "deferral_rate": 0.07578947368421053,
+            "team_accuracy": 0.9226315789473685
+        },
+        {
+            "class": "Sports",
+            "samples": 1900,
+            "deferred": 61,
+            "deferral_rate": 0.032105263157894734,
+            "team_accuracy": 0.9789473684210527
+        },
+        {
+            "class": "Business",
+            "samples": 1900,
+            "deferred": 572,
+            "deferral_rate": 0.30105263157894735,
+            "team_accuracy": 0.9468421052631579
+        },
+        {
+            "class": "Sci/Tech",
+            "samples": 1900,
+            "deferred": 578,
+            "deferral_rate": 0.3042105263157895,
+            "team_accuracy": 0.9552631578947368
+        }
+    ]
+}
