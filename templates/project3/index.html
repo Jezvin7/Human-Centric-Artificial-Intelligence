@@ -2225,8 +2225,129 @@
 
 
     {% endif %}
+    <!-- ====================================================== -->
+    <!-- TASK 5 - HUMAN EXPERT                                  -->
+    <!-- ====================================================== -->
 
-    
+    <section class="card">
+
+        <h2>
+            Task 5: Active Learning with Human Expert
+        </h2>
+
+
+        {% if human_message %}
+
+            <p class="explanation">
+                {{ human_message }}
+            </p>
+
+        {% endif %}
+
+
+        {% if human_results %}
+
+            <p>
+                A real user provided labels for articles requested
+                by the active-learning system.
+            </p>
+
+
+            <div class="result-grid">
+
+                <div>
+
+                    <span class="metric-label">
+                        Human Queries
+                    </span>
+
+                    <span class="metric-value">
+                        {{ human_results.human_queries }}
+                    </span>
+
+                </div>
+
+
+                <div>
+
+                    <span class="metric-label">
+                        Correct Labels
+                    </span>
+
+                    <span class="metric-value">
+                        {{ human_results.correct_labels }}
+                    </span>
+
+                </div>
+
+
+                <div>
+
+                    <span class="metric-label">
+                        Human Accuracy
+                    </span>
+
+                    <span class="metric-value">
+
+                        {% if human_results.human_accuracy_percent != None %}
+
+                            {{ human_results.human_accuracy_percent|floatformat:2 }}%
+
+                        {% else %}
+
+                            -
+
+                        {% endif %}
+
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <p class="explanation">
+                Query strategy:
+                {{ human_results.acquisition_strategy }}
+            </p>
+
+
+            <a
+                class="button-link"
+                href="{% url 'project3:human_expert' %}"
+            >
+                Open Human Expert Interface
+            </a>
+
+
+        {% else %}
+
+            <p>
+                This optional extension allows a real user to
+                provide labels for articles requested by the
+                active-learning system.
+            </p>
+
+
+            <p class="explanation">
+                The correct labels are hidden while the user makes
+                each decision. The resulting human performance is
+                stored separately from the simulated-expert
+                experiments in Tasks 1–4.
+            </p>
+
+
+            <a
+                class="button-link"
+                href="{% url 'project3:human_expert' %}"
+            >
+                Start Human Expert Session
+            </a>
+
+        {% endif %}
+
+    </section>
+        
 
 </main>
 

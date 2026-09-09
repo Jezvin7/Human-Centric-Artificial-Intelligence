@@ -242,3 +242,31 @@ button:disabled {
     opacity: 0.65;
     cursor: wait;
 }
+
+.article-text {
+    background: #f8fafc;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 20px;
+    margin: 16px 0 22px;
+    line-height: 1.7;
+    white-space: pre-wrap;
+}
+
+
+.label-grid {
+    display: grid;
+    grid-template-columns:
+        repeat(
+            auto-fit,
+            minmax(150px, 1fr)
+        );
+    gap: 12px;
+    margin-top: 16px;
+}
+
+
+.label-grid button {
+    width: 100%;
+    padding: 14px 16px;
+}

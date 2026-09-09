@@ -2,6 +2,7 @@ from pathlib import Path
 import json
 import subprocess
 import sys
+from datetime import datetime
 from django.shortcuts import render,  redirect
 
 
@@ -12,6 +13,7 @@ def index(request):
     expert_results_path = (saved_models_dir / "expert_results.json")
     l2d_results_path = (saved_models_dir / "l2d_results.json")
     active_results_path = (saved_models_dir/ "active_learning_results.json")
+    human_results_path = (saved_models_dir/ "human_expert_results.json")
 
 
     # =========================================================
@@ -67,6 +69,11 @@ def index(request):
     best_query_fraction = None
     labels_saved_percent = None
 
+    # =========================================================
+    # TASK 5 VARIABLES
+    # =========================================================
+
+    human_results = None
 
     # =========================================================
     # TASK 1 — BASELINE RESULTS
@@ -503,6 +510,19 @@ def index(request):
         None,
     )
 
+    if human_results_path.exists():
+        with open(
+            human_results_path,
+            "r",
+            encoding="utf-8",
+        ) as file:
+            human_results = json.load(file)
+
+    human_message = request.session.pop(
+                    "project3_human_message",
+                    None,
+                    )
+
     # =========================================================
     # CONTEXT
     # =========================================================
@@ -593,6 +613,9 @@ def index(request):
 
         "run_message": run_message,
         "run_success": run_success,
+
+        "human_results": human_results,
+        "human_message": human_message,
     }
 
 
@@ -689,4 +712,737 @@ def run_all_analysis(request):
 
     return redirect(
         "project3:index"
+    )
+
+# ============================================================
+# TASK 5 - HUMAN EXPERT INTERFACE
+# ============================================================
+
+
+# ============================================================
+# TASK 5 - SAVE HUMAN EXPERT RESULTS
+# ============================================================
+
+def finalize_human_session(
+    project_dir,
+    query_pool,
+    responses,
+):
+
+    class_names = [
+        "World",
+        "Sports",
+        "Business",
+        "Sci/Tech",
+    ]
+
+
+    total_answers = len(
+        responses
+    )
+
+
+    correct_answers = sum(
+        1
+        for response in responses
+        if response["correct"]
+    )
+
+
+    if total_answers > 0:
+
+        human_accuracy = (
+            correct_answers
+            /
+            total_answers
+            *
+            100
+        )
+
+    else:
+
+        human_accuracy = None
+
+
+    # ========================================================
+    # CLASS-WISE HUMAN PERFORMANCE
+    # ========================================================
+
+    per_class_results = []
+
+
+    for class_index, class_name in enumerate(
+        class_names
+    ):
+
+        class_responses = [
+            response
+            for response in responses
+            if int(
+                response["true_label"]
+            )
+            ==
+            class_index
+        ]
+
+
+        class_total = len(
+            class_responses
+        )
+
+
+        class_correct = sum(
+            1
+            for response in class_responses
+            if response["correct"]
+        )
+
+
+        if class_total > 0:
+
+            class_accuracy = (
+                class_correct
+                /
+                class_total
+                *
+                100
+            )
+
+        else:
+
+            class_accuracy = None
+
+
+        per_class_results.append(
+            {
+                "class":
+                    class_name,
+
+                "queries":
+                    class_total,
+
+                "correct":
+                    class_correct,
+
+                "accuracy_percent":
+                    (
+                        round(
+                            class_accuracy,
+                            2,
+                        )
+                        if class_accuracy
+                        is not None
+                        else None
+                    ),
+            }
+        )
+
+
+    # ========================================================
+    # RESULT
+    # ========================================================
+
+    results = {
+
+        "task":
+            (
+                "Task 5 - Active Learning "
+                "with Human Expert"
+            ),
+
+        "human_queries":
+            total_answers,
+
+        "correct_labels":
+            correct_answers,
+
+        "incorrect_labels":
+            (
+                total_answers
+                -
+                correct_answers
+            ),
+
+        "human_accuracy_percent":
+            (
+                round(
+                    human_accuracy,
+                    2,
+                )
+                if human_accuracy
+                is not None
+                else None
+            ),
+
+        "query_pool_size":
+            len(
+                query_pool
+            ),
+
+        "acquisition_strategy":
+            (
+                "Competence uncertainty sampling"
+            ),
+
+        "per_class_results":
+            per_class_results,
+
+        "completed_at":
+            datetime.now().isoformat(
+                timespec="seconds"
+            ),
+    }
+
+
+    # ========================================================
+    # SAVE FILES
+    # ========================================================
+
+    saved_models_dir = (
+        project_dir
+        / "ml"
+        / "saved_models"
+    )
+
+
+    results_path = (
+        saved_models_dir
+        / "human_expert_results.json"
+    )
+
+
+    log_path = (
+        saved_models_dir
+        / "human_expert_query_log.json"
+    )
+
+
+    with open(
+        results_path,
+        "w",
+        encoding="utf-8",
+    ) as file:
+
+        json.dump(
+            results,
+            file,
+            indent=4,
+        )
+
+
+    with open(
+        log_path,
+        "w",
+        encoding="utf-8",
+    ) as file:
+
+        json.dump(
+            responses,
+            file,
+            indent=4,
+        )
+
+
+    # ========================================================
+    # REGENERATE PDF
+    # ========================================================
+
+    report_script = (
+        project_dir
+        / "ml"
+        / "generate_report.py"
+    )
+
+
+    try:
+
+        report_result = subprocess.run(
+            [
+                sys.executable,
+                str(report_script),
+            ],
+            cwd=project_dir.parent,
+            capture_output=True,
+            text=True,
+        )
+
+
+        if report_result.returncode == 0:
+
+            report_updated = True
+
+        else:
+
+            report_updated = False
+
+            print(
+                report_result.stdout
+            )
+
+            print(
+                report_result.stderr
+            )
+
+
+    except Exception as error:
+
+        report_updated = False
+
+        print(
+            "Task 5 report generation error:",
+            error,
+        )
+
+
+    return (
+        results,
+        report_updated,
+    )
+
+
+def human_expert(request):
+
+    project_dir = (
+        Path(__file__).resolve().parent
+    )
+
+    pool_path = (
+        project_dir
+        / "ml"
+        / "saved_models"
+        / "human_query_pool.json"
+    )
+
+
+    # ========================================================
+    # QUERY POOL NOT AVAILABLE
+    # ========================================================
+
+    if not pool_path.exists():
+
+        return render(
+            request,
+            "project3/human_expert.html",
+            {
+                "pool_missing": True,
+            },
+        )
+
+
+    with open(
+        pool_path,
+        "r",
+        encoding="utf-8",
+    ) as file:
+
+        query_pool = json.load(file)
+
+
+    session_key = (
+        "project3_human_expert"
+    )
+
+
+    state = request.session.get(
+        session_key
+    )
+
+
+    if state is None:
+
+        state = {
+            "current": 0,
+            "responses": [],
+            "finished": False,
+        }
+
+
+    # ========================================================
+    # POST ACTIONS
+    # ========================================================
+
+    if request.method == "POST":
+
+        action = request.POST.get(
+            "action"
+        )
+
+
+        # ----------------------------------------------------
+        # RESET
+        # ----------------------------------------------------
+
+        if action == "reset":
+
+            state = {
+                "current": 0,
+                "responses": [],
+                "finished": False,
+            }
+
+
+            request.session[
+                session_key
+            ] = state
+
+
+            request.session.modified = True
+
+
+            return redirect(
+                "project3:human_expert"
+            )
+
+
+        # ----------------------------------------------------
+        # HUMAN PROVIDES LABEL
+        # ----------------------------------------------------
+
+        if action == "label":
+
+            try:
+
+                human_label = int(
+                    request.POST.get(
+                        "label"
+                    )
+                )
+
+            except (
+                TypeError,
+                ValueError,
+            ):
+
+                return redirect(
+                    "project3:human_expert"
+                )
+
+
+            if human_label not in [
+                0,
+                1,
+                2,
+                3,
+            ]:
+
+                return redirect(
+                    "project3:human_expert"
+                )
+
+
+            current_position = (
+                state["current"]
+            )
+
+
+            if (
+                current_position
+                >=
+                len(query_pool)
+            ):
+
+                state[
+                    "finished"
+                ] = True
+
+
+                request.session[
+                    session_key
+                ] = state
+
+
+                return redirect(
+                    "project3:human_expert"
+                )
+
+
+            sample = (
+                query_pool[
+                    current_position
+                ]
+            )
+
+
+            true_label = int(
+                sample[
+                    "true_label"
+                ]
+            )
+
+
+            response = {
+
+                "sample_index":
+                    int(
+                        sample[
+                            "index"
+                        ]
+                    ),
+
+                "human_label":
+                    human_label,
+
+                "true_label":
+                    true_label,
+
+                "correct":
+                    (
+                        human_label
+                        ==
+                        true_label
+                    ),
+            }
+
+
+            state[
+                "responses"
+            ].append(
+                response
+            )
+
+
+            state[
+                "current"
+            ] += 1
+
+
+            if (
+                state["current"]
+                >=
+                len(query_pool)
+            ):
+
+                state[
+                    "finished"
+                ] = True
+
+
+                (
+                    results,
+                    report_updated,
+                ) = finalize_human_session(
+                    project_dir,
+                    query_pool,
+                    state["responses"],
+                )
+
+
+                state[
+                    "saved_results"
+                ] = results
+
+
+                request.session[
+                    session_key
+                ] = state
+
+
+                request.session.modified = True
+
+
+                if report_updated:
+
+                    request.session[
+                        "project3_human_message"
+                    ] = (
+                        "Human expert experiment completed. "
+                        "Task 5 results and the PDF report "
+                        "were updated successfully."
+                    )
+
+                else:
+
+                    request.session[
+                        "project3_human_message"
+                    ] = (
+                        "Human expert results were saved, "
+                        "but the PDF report could not be regenerated."
+                    )
+
+
+                return redirect(
+                    "project3:index"
+                )
+
+
+            request.session[
+                session_key
+            ] = state
+
+
+            request.session.modified = True
+
+
+            return redirect(
+                "project3:human_expert"
+            )
+
+
+        # ----------------------------------------------------
+        # FINISH EARLY
+        # ----------------------------------------------------
+
+        if action == "finish":
+
+            if not state[
+                "responses"
+            ]:
+
+                return redirect(
+                    "project3:human_expert"
+                )
+
+
+            state[
+                "finished"
+            ] = True
+
+
+            (
+                results,
+                report_updated,
+            ) = finalize_human_session(
+                project_dir,
+                query_pool,
+                state["responses"],
+            )
+
+
+            state[
+                "saved_results"
+            ] = results
+
+
+            request.session[
+                session_key
+            ] = state
+
+
+            request.session.modified = True
+
+
+            if report_updated:
+
+                request.session[
+                    "project3_human_message"
+                ] = (
+                    "Human expert experiment completed. "
+                    "Task 5 results and the PDF report "
+                    "were updated successfully."
+                )
+
+            else:
+
+                request.session[
+                    "project3_human_message"
+                ] = (
+                    "Human expert results were saved, "
+                    "but the PDF report could not be regenerated."
+                )
+
+
+            return redirect(
+                "project3:index"
+            )
+
+
+    # ========================================================
+    # SESSION STATISTICS
+    # ========================================================
+
+    responses = (
+        state["responses"]
+    )
+
+
+    answered = len(
+        responses
+    )
+
+
+    correct_answers = sum(
+        1
+        for response in responses
+        if response["correct"]
+    )
+
+
+    human_accuracy = None
+
+
+    if answered > 0:
+
+        human_accuracy = (
+            correct_answers
+            /
+            answered
+            *
+            100
+        )
+
+
+    # ========================================================
+    # CURRENT ARTICLE
+    # ========================================================
+
+    article = None
+
+
+    if (
+        not state[
+            "finished"
+        ]
+        and
+        state[
+            "current"
+        ]
+        <
+        len(query_pool)
+    ):
+
+        article = (
+            query_pool[
+                state[
+                    "current"
+                ]
+            ]
+        )
+
+
+    context = {
+
+        "pool_missing":
+            False,
+
+        "state":
+            state,
+
+        "article":
+            article,
+
+        "answered":
+            answered,
+
+        "correct_answers":
+            correct_answers,
+
+        "human_accuracy":
+            human_accuracy,
+
+        "total_queries":
+            len(query_pool),
+
+        "class_names": [
+            "World",
+            "Sports",
+            "Business",
+            "Sci/Tech",
+        ],
+    }
+
+
+    return render(
+        request,
+        "project3/human_expert.html",
+        context,
     )
