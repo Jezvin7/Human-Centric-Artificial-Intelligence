@@ -1,0 +1,2236 @@
+{% load static %}
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+    <title>
+        Project 3 - Active Learning for Learning-to-Defer
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="{% static 'project3/project3.css' %}"
+    >
+
+</head>
+
+
+<body>
+
+
+<main class="page-container">
+
+
+    <!-- =====================================================
+         PROJECT HEADER
+         ===================================================== -->
+
+    <section class="hero-section">
+
+        <h1>
+            Project 3: Active Learning for Learning-to-Defer
+        </h1>
+
+        <p>
+            This project studies human-AI collaboration for news
+            topic classification using the AG News dataset.
+            The system can either make a prediction itself or
+            defer the decision to an expert.
+        </p>
+
+    </section>
+
+    <section class="card">
+
+    <h2>
+        Project Analysis
+    </h2>
+
+    <p>
+        Run the complete Project 3 analysis or download the
+        latest generated report.
+    </p>
+
+    <p class="explanation">
+        Running the full analysis executes Tasks 1–4 again,
+        updates the saved experiment results, and regenerates
+        the PDF report. This may take several minutes.
+    </p>
+
+
+    {% if run_message %}
+
+        <p class="explanation">
+            {{ run_message }}
+        </p>
+
+    {% endif %}
+
+
+    <div class="action-row">
+
+        <form
+            method="post"
+            action="{% url 'project3:run_all_analysis' %}"
+        >
+
+            {% csrf_token %}
+
+            <button class="button-link"
+                type="submit"
+                onclick="
+                    this.disabled = true;
+                    this.innerText = 'Running Analysis...';
+                    this.form.submit();
+                "
+            >
+                Run Full Analysis
+            </button>
+
+        </form>
+
+
+        <a
+            class="button-link"
+            href="{% static 'project3/HCAI_Project3_Report.pdf' %}"
+            download
+        >
+            Download Project Report
+        </a>
+
+    </div>
+
+    </section>
+
+    <!-- =====================================================
+         TASK 1
+         ===================================================== -->
+
+    <section class="card">
+
+        <h2>
+            Task 1: Baseline Classification Model
+        </h2>
+
+        <p>
+            A baseline classifier is trained using all available
+            labels from the AG News training set. The official
+            test set is used only for evaluation.
+        </p>
+
+        <p>
+            The baseline represents the performance that the
+            later human-AI team should aim to match or improve.
+        </p>
+
+    </section>
+
+
+
+    {% if baseline_results %}
+
+
+    <!-- =====================================================
+         TASK 1 — DATASET
+         ===================================================== -->
+
+    <section class="card">
+
+        <h2>
+            Dataset Overview
+        </h2>
+
+        <p>
+            AG News is a four-class news topic classification
+            dataset containing World, Sports, Business and
+            Sci/Tech articles.
+        </p>
+
+
+        <div class="result-grid">
+
+
+            <div>
+
+                <span class="metric-label">
+                    Dataset
+                </span>
+
+                <span class="metric-value">
+                    {{ baseline_results.dataset }}
+                </span>
+
+            </div>
+
+
+            <div>
+
+                <span class="metric-label">
+                    Training Samples
+                </span>
+
+                <span class="metric-value">
+                    {{ baseline_results.train_samples }}
+                </span>
+
+            </div>
+
+
+            <div>
+
+                <span class="metric-label">
+                    Test Samples
+                </span>
+
+                <span class="metric-value">
+                    {{ baseline_results.test_samples }}
+                </span>
+
+            </div>
+
+
+            <div>
+
+                <span class="metric-label">
+                    Number of Classes
+                </span>
+
+                <span class="metric-value">
+                    4
+                </span>
+
+            </div>
+
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         TASK 1 — MODEL
+         ===================================================== -->
+
+    <section class="card">
+
+        <h2>
+            Baseline Model
+        </h2>
+
+
+        <div class="result-grid">
+
+
+            <div>
+
+                <span class="metric-label">
+                    Text Representation
+                </span>
+
+                <span class="metric-value">
+                    {{ baseline_results.representation }}
+                </span>
+
+            </div>
+
+
+            <div>
+
+                <span class="metric-label">
+                    Classifier
+                </span>
+
+                <span class="metric-value">
+                    {{ baseline_results.model }}
+                </span>
+
+            </div>
+
+
+            <div>
+
+                <span class="metric-label">
+                    Test Accuracy
+                </span>
+
+                <span class="metric-value">
+                    {{ baseline_results.accuracy_percent }}%
+                </span>
+
+            </div>
+
+
+        </div>
+
+
+        <p class="explanation">
+
+            TF-IDF converts the news articles into numerical
+            feature vectors. Logistic Regression is used because
+            it works efficiently with sparse text features and
+            provides class probability estimates.
+
+            These probabilities are later used as an estimate of
+            AI confidence in the learning-to-defer system.
+
+        </p>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         TASK 1 — CLASS PERFORMANCE
+         ===================================================== -->
+
+    <section class="card">
+
+        <h2>
+            Baseline Class-wise Performance
+        </h2>
+
+
+        <div class="table-wrapper">
+
+
+            <table>
+
+
+                <thead>
+
+                    <tr>
+
+                        <th>Class</th>
+
+                        <th>Precision</th>
+
+                        <th>Recall</th>
+
+                        <th>F1-score</th>
+
+                        <th>Support</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+
+                    {% for metric in baseline_class_metrics %}
+
+                    <tr>
+
+                        <td>
+                            <strong>
+                                {{ metric.name }}
+                            </strong>
+                        </td>
+
+                        <td>
+                            {{ metric.precision|floatformat:2 }}
+                        </td>
+
+                        <td>
+                            {{ metric.recall|floatformat:2 }}
+                        </td>
+
+                        <td>
+                            {{ metric.f1|floatformat:2 }}
+                        </td>
+
+                        <td>
+                            {{ metric.support }}
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+
+                </tbody>
+
+
+            </table>
+
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         TASK 1 — CONFUSION MATRIX
+         ===================================================== -->
+
+    <section class="card">
+
+        <h2>
+            Baseline Confusion Matrix
+        </h2>
+
+        <p>
+            Rows represent the actual class and columns represent
+            the predicted class.
+        </p>
+
+
+        <div class="table-wrapper">
+
+            <table>
+
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Actual / Predicted
+                        </th>
+
+
+                        {% for class_name in baseline_results.class_names %}
+
+                        <th>
+                            {{ class_name }}
+                        </th>
+
+                        {% endfor %}
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+
+                    {% for class_name, row in baseline_confusion_rows %}
+
+                    <tr>
+
+                        <td>
+                            <strong>
+                                {{ class_name }}
+                            </strong>
+                        </td>
+
+
+                        {% for value in row %}
+
+                        <td>
+                            {{ value }}
+                        </td>
+
+                        {% endfor %}
+
+                    </tr>
+
+                    {% endfor %}
+
+
+                </tbody>
+
+
+            </table>
+
+        </div>
+
+    </section>
+
+
+    {% endif %}
+
+
+
+    <!-- =====================================================
+         TASK 2
+         ===================================================== -->
+
+    <section class="card">
+
+        <h2>
+            Task 2: Simulated Expert
+        </h2>
+
+        <p>
+            A simulated expert represents a human with specialized
+            knowledge. The expert is intentionally imperfect and
+            has different levels of competence across the AG News
+            categories.
+        </p>
+
+        <p>
+            The simulated expert represents a
+            <strong>
+                Business & Technology Specialist
+            </strong>.
+        </p>
+
+    </section>
+
+
+
+    {% if expert_results %}
+
+
+    <!-- =====================================================
+         TASK 2 — OVERVIEW
+         ===================================================== -->
+
+    <section class="card">
+
+        <h2>
+            Expert Overview
+        </h2>
+
+
+        <div class="result-grid">
+
+
+            <div>
+
+                <span class="metric-label">
+                    Expert
+                </span>
+
+                <span class="metric-value">
+                    {{ expert_results.expert_name }}
+                </span>
+
+            </div>
+
+
+            <div>
+
+                <span class="metric-label">
+                    Test Samples
+                </span>
+
+                <span class="metric-value">
+                    {{ expert_results.test_samples }}
+                </span>
+
+            </div>
+
+
+            <div>
+
+                <span class="metric-label">
+                    Expert Accuracy
+                </span>
+
+                <span class="metric-value">
+                    {{ expert_results.accuracy_percent }}%
+                </span>
+
+            </div>
+
+
+        </div>
+
+
+        <p class="explanation">
+
+            The expert is deliberately specialized rather than
+            uniformly accurate. It is highly competent in
+            Business and Sci/Tech, but substantially weaker in
+            World and Sports.
+
+        </p>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         TASK 2 — DESIGNED COMPETENCE
+         ===================================================== -->
+
+    <section class="card">
+
+        <h2>
+            Designed Expert Competence
+        </h2>
+
+
+        <div class="result-grid">
+
+
+            {% for item in expert_profile %}
+
+
+            <div>
+
+                <span class="metric-label">
+                    {{ item.name }}
+                </span>
+
+                <span class="metric-value">
+                    {{ item.accuracy_percent|floatformat:0 }}%
+                </span>
+
+            </div>
+
+
+            {% endfor %}
+
+
+        </div>
+
+
+        <p class="explanation">
+
+            The competence profile creates complementary
+            strengths between the AI and the expert. This is
+            necessary for studying when deferral can improve
+            overall performance.
+
+        </p>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         TASK 2 — PERFORMANCE
+         ===================================================== -->
+
+    <section class="card">
+
+        <h2>
+            Expert Class-wise Performance
+        </h2>
+
+
+        <div class="table-wrapper">
+
+
+            <table>
+
+
+                <thead>
+
+                    <tr>
+
+                        <th>Class</th>
+
+                        <th>Precision</th>
+
+                        <th>Recall</th>
+
+                        <th>F1-score</th>
+
+                        <th>Support</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+
+                    {% for metric in expert_class_metrics %}
+
+                    <tr>
+
+                        <td>
+                            <strong>
+                                {{ metric.name }}
+                            </strong>
+                        </td>
+
+                        <td>
+                            {{ metric.precision|floatformat:2 }}
+                        </td>
+
+                        <td>
+                            {{ metric.recall|floatformat:2 }}
+                        </td>
+
+                        <td>
+                            {{ metric.f1|floatformat:2 }}
+                        </td>
+
+                        <td>
+                            {{ metric.support }}
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+
+                </tbody>
+
+
+            </table>
+
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         TASK 2 — CONFUSION MATRIX
+         ===================================================== -->
+
+    <section class="card">
+
+        <h2>
+            Expert Confusion Matrix
+        </h2>
+
+
+        <div class="table-wrapper">
+
+            <table>
+
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Actual / Expert Prediction
+                        </th>
+
+
+                        {% for class_name in expert_results.class_names %}
+
+                        <th>
+                            {{ class_name }}
+                        </th>
+
+                        {% endfor %}
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+
+                    {% for class_name, row in expert_confusion_rows %}
+
+                    <tr>
+
+                        <td>
+                            <strong>
+                                {{ class_name }}
+                            </strong>
+                        </td>
+
+
+                        {% for value in row %}
+
+                        <td>
+                            {{ value }}
+                        </td>
+
+                        {% endfor %}
+
+                    </tr>
+
+                    {% endfor %}
+
+
+                </tbody>
+
+
+            </table>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         TASK 2 — AI VS EXPERT
+         ===================================================== -->
+
+    <section class="card">
+
+        <h2>
+            AI vs. Expert
+        </h2>
+
+        <p>
+            Recall is compared for each topic to show where the
+            AI and expert have complementary strengths.
+        </p>
+
+
+        <div class="table-wrapper">
+
+
+            <table>
+
+
+                <thead>
+
+                    <tr>
+
+                        <th>Class</th>
+
+                        <th>AI Recall</th>
+
+                        <th>Expert Recall</th>
+
+                        <th>Better Performer</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+
+                    {% for row in comparison_rows %}
+
+                    <tr>
+
+                        <td>
+                            <strong>
+                                {{ row.name }}
+                            </strong>
+                        </td>
+
+                        <td>
+                            {{ row.ai_recall|floatformat:2 }}
+                        </td>
+
+                        <td>
+                            {{ row.expert_recall|floatformat:2 }}
+                        </td>
+
+                        <td>
+                            <strong>
+                                {{ row.better }}
+                            </strong>
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+
+                </tbody>
+
+
+            </table>
+
+
+        </div>
+
+
+        <p class="explanation">
+
+            The AI performs better on World and Sports, while
+            the expert performs better on Business and Sci/Tech.
+            This creates a meaningful learning-to-defer problem.
+
+        </p>
+
+    </section>
+
+
+    {% endif %}
+
+
+
+    <!-- =====================================================
+         TASK 3
+         ===================================================== -->
+
+    <section class="card">
+
+        <h2>
+            Task 3: Learning to Defer
+        </h2>
+
+        <p>
+            In this stage, both the classifier predictions and
+            expert labels are available during training.
+        </p>
+
+        <p>
+            A separate expert competence model is trained to
+            estimate the probability that the expert will
+            correctly classify a given article.
+        </p>
+
+        <p>
+            For each input, the estimated expert competence is
+            compared with the confidence of the baseline AI
+            classifier. The system defers when the expert is
+            estimated to be more reliable.
+        </p>
+
+    </section>
+
+
+
+    {% if l2d_results %}
+
+
+    <!-- =====================================================
+         TASK 3 — MAIN RESULTS
+         ===================================================== -->
+
+    <section class="card">
+
+        <h2>
+            Human-AI Team Performance
+        </h2>
+
+
+        <div class="result-grid">
+
+
+            <div>
+
+                <span class="metric-label">
+                    AI-only Accuracy
+                </span>
+
+                <span class="metric-value">
+                    {{ l2d_results.ai_accuracy_percent }}%
+                </span>
+
+            </div>
+
+
+            <div>
+
+                <span class="metric-label">
+                    Expert-only Accuracy
+                </span>
+
+                <span class="metric-value">
+                    {{ l2d_results.expert_accuracy_percent }}%
+                </span>
+
+            </div>
+
+
+            <div>
+
+                <span class="metric-label">
+                    Human-AI Team Accuracy
+                </span>
+
+                <span class="metric-value">
+                    {{ l2d_results.team_accuracy_percent }}%
+                </span>
+
+            </div>
+
+
+            <div>
+
+                <span class="metric-label">
+                    Improvement over AI
+                </span>
+
+                <span class="metric-value">
+                    +{{ team_improvement|floatformat:2 }} pp
+                </span>
+
+            </div>
+
+
+        </div>
+
+
+        <p class="explanation">
+
+            Learning to defer improves the test accuracy from
+            <strong>
+                {{ l2d_results.ai_accuracy_percent }}%
+            </strong>
+            for the AI alone to
+            <strong>
+                {{ l2d_results.team_accuracy_percent }}%
+            </strong>
+            for the human-AI team.
+
+        </p>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         TASK 3 — COVERAGE
+         ===================================================== -->
+
+    <section class="card">
+
+        <h2>
+            Coverage and Deferral
+        </h2>
+
+
+        <div class="result-grid">
+
+
+            <div>
+
+                <span class="metric-label">
+                    Coverage
+                </span>
+
+                <span class="metric-value">
+                    {{ l2d_results.coverage_percent }}%
+                </span>
+
+            </div>
+
+
+            <div>
+
+                <span class="metric-label">
+                    Deferral Rate
+                </span>
+
+                <span class="metric-value">
+                    {{ l2d_results.deferral_rate_percent }}%
+                </span>
+
+            </div>
+
+
+            <div>
+
+                <span class="metric-label">
+                    AI-handled Samples
+                </span>
+
+                <span class="metric-value">
+                    {{ l2d_results.num_ai_handled }}
+                </span>
+
+            </div>
+
+
+            <div>
+
+                <span class="metric-label">
+                    Deferred Samples
+                </span>
+
+                <span class="metric-value">
+                    {{ l2d_results.num_deferred }}
+                </span>
+
+            </div>
+
+
+        </div>
+
+
+        <div class="result-grid">
+
+
+            <div>
+
+                <span class="metric-label">
+                    AI Accuracy on Retained Samples
+                </span>
+
+                <span class="metric-value">
+                    {{ ai_covered_accuracy_percent|floatformat:2 }}%
+                </span>
+
+            </div>
+
+
+            <div>
+
+                <span class="metric-label">
+                    Expert Accuracy on Deferred Samples
+                </span>
+
+                <span class="metric-value">
+                    {{ expert_deferred_accuracy_percent|floatformat:2 }}%
+                </span>
+
+            </div>
+
+
+        </div>
+
+
+        <p class="explanation">
+
+            The AI handles most articles itself. Only
+            <strong>
+                {{ l2d_results.deferral_rate_percent }}%
+            </strong>
+            are sent to the expert.
+
+            The expert achieves much higher accuracy on the
+            selected deferred subset than on the complete test
+            set, indicating that the system learned to query the
+            expert selectively.
+
+        </p>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         TASK 3 — DEFERRAL QUALITY
+         ===================================================== -->
+
+    <section class="card">
+
+        <h2>
+            Deferral Quality
+        </h2>
+
+        <p>
+            Deferral quality evaluates whether sending an example
+            to the expert actually improves the final decision.
+        </p>
+
+
+        <div class="result-grid">
+
+
+            <div>
+
+                <span class="metric-label">
+                    Useful Deferrals
+                </span>
+
+                <span class="metric-value">
+                    {{ l2d_results.useful_deferrals }}
+                </span>
+
+            </div>
+
+
+            <div>
+
+                <span class="metric-label">
+                    Harmful Deferrals
+                </span>
+
+                <span class="metric-value">
+                    {{ l2d_results.harmful_deferrals }}
+                </span>
+
+            </div>
+
+
+            <div>
+
+                <span class="metric-label">
+                    Useful Deferral Rate
+                </span>
+
+                <span class="metric-value">
+                    {{ useful_deferral_rate_percent|floatformat:2 }}%
+                </span>
+
+            </div>
+
+
+            <div>
+
+                <span class="metric-label">
+                    Harmful Deferral Rate
+                </span>
+
+                <span class="metric-value">
+                    {{ harmful_deferral_rate_percent|floatformat:2 }}%
+                </span>
+
+            </div>
+
+
+        </div>
+
+
+        <p>
+            A useful deferral occurs when the AI would have been
+            wrong while the expert is correct.
+        </p>
+
+        <p>
+            A harmful deferral occurs when the AI would have been
+            correct but the expert is wrong.
+        </p>
+
+
+        <p class="explanation">
+
+            The system produced
+            <strong>
+                {{ l2d_results.useful_deferrals }}
+            </strong>
+            useful deferrals compared with only
+            <strong>
+                {{ l2d_results.harmful_deferrals }}
+            </strong>
+            harmful deferrals.
+
+            {% if useful_harmful_ratio %}
+
+                This corresponds to approximately
+                <strong>
+                    {{ useful_harmful_ratio|floatformat:2 }}
+                </strong>
+                useful deferrals for every harmful deferral.
+
+            {% endif %}
+
+        </p>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         TASK 3 — ROUTING QUALITY
+         ===================================================== -->
+
+    <section class="card">
+
+        <h2>
+            Routing Quality
+        </h2>
+
+
+        <div class="result-grid">
+
+
+            <div>
+
+                <span class="metric-label">
+                    Routing Accuracy
+                </span>
+
+                <span class="metric-value">
+                    {{ l2d_results.routing_accuracy_percent }}%
+                </span>
+
+            </div>
+
+
+            <div>
+
+                <span class="metric-label">
+                    Oracle Upper Bound
+                </span>
+
+                <span class="metric-value">
+                    {{ l2d_results.oracle_accuracy_percent }}%
+                </span>
+
+            </div>
+
+
+            <div>
+
+                <span class="metric-label">
+                    Gap to Oracle
+                </span>
+
+                <span class="metric-value">
+                    {{ oracle_gap|floatformat:2 }} pp
+                </span>
+
+            </div>
+
+
+        </div>
+
+
+        <p>
+            Routing accuracy considers cases where exactly one
+            of the AI or expert is correct and measures whether
+            the deferral system selected the better decision
+            maker.
+        </p>
+
+
+        <p class="explanation">
+
+            The learned routing strategy achieves
+            <strong>
+                {{ l2d_results.routing_accuracy_percent }}%
+            </strong>
+            accuracy on decisive cases.
+
+            The oracle upper bound of
+            <strong>
+                {{ l2d_results.oracle_accuracy_percent }}%
+            </strong>
+            represents the performance that would be possible if
+            the system always knew in advance whether the AI or
+            expert would be correct.
+
+        </p>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         TASK 3 — CLASS-WISE DEFERRAL
+         ===================================================== -->
+
+    <section class="card">
+
+        <h2>
+            Class-wise Deferral Behavior
+        </h2>
+
+        <p>
+            The table shows how often the learned system chooses
+            to use the expert for each topic.
+        </p>
+
+
+        <div class="table-wrapper">
+
+
+            <table>
+
+
+                <thead>
+
+                    <tr>
+
+                        <th>Class</th>
+
+                        <th>Samples</th>
+
+                        <th>Deferred</th>
+
+                        <th>Deferral Rate</th>
+
+                        <th>Team Accuracy</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+
+                    {% for row in l2d_class_results %}
+
+                    <tr>
+
+                        <td>
+                            <strong>
+                                {{ row.class }}
+                            </strong>
+                        </td>
+
+                        <td>
+                            {{ row.samples }}
+                        </td>
+
+                        <td>
+                            {{ row.deferred }}
+                        </td>
+
+                        <td>
+                            {{ row.deferral_rate_percent|floatformat:2 }}%
+                        </td>
+
+                        <td>
+                            {{ row.team_accuracy_percent|floatformat:2 }}%
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+
+                </tbody>
+
+
+            </table>
+
+
+        </div>
+
+
+        <p class="explanation">
+
+            The learned system defers only a small fraction of
+            World and Sports articles, while approximately 30%
+            of Business and Sci/Tech articles are sent to the
+            expert.
+
+            This behavior matches the expert's competence profile
+            and shows that the system learned where expert
+            involvement is most useful.
+
+        </p>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         TASK 3 — SUMMARY
+         ===================================================== -->
+
+    <section class="card">
+
+        <h2>
+            Learning-to-Defer Summary
+        </h2>
+
+
+        <p>
+            The baseline AI achieved
+            <strong>
+                {{ l2d_results.ai_accuracy_percent }}%
+            </strong>
+            accuracy, while the simulated expert achieved
+            <strong>
+                {{ l2d_results.expert_accuracy_percent }}%
+            </strong>.
+        </p>
+
+
+        <p>
+            By learning when to rely on each decision maker,
+            the combined human-AI system achieved
+            <strong>
+                {{ l2d_results.team_accuracy_percent }}%
+            </strong>
+            accuracy.
+        </p>
+
+
+        <p>
+            The model deferred
+            <strong>
+                {{ l2d_results.deferral_rate_percent }}%
+            </strong>
+            of the test set and obtained a routing accuracy of
+            <strong>
+                {{ l2d_results.routing_accuracy_percent }}%
+            </strong>
+            on examples where the AI and expert differed in
+            correctness.
+        </p>
+
+
+        <p class="explanation">
+
+            These results show that the value of the expert is
+            not determined by overall expert accuracy alone.
+            Although the simulated expert is less accurate than
+            the AI overall, selectively using the expert in areas
+            where it is more competent improves the final
+            classification performance.
+
+        </p>
+
+    </section>
+
+
+
+    {% else %}
+
+
+    <section class="card">
+
+        <h2>
+            Learning-to-Defer Results
+        </h2>
+
+        <p>
+            Task 3 results are not available.
+        </p>
+
+        <p>
+            Run:
+        </p>
+
+        <strong>
+            python project3/ml/train_defer.py
+        </strong>
+
+    </section>
+
+
+    {% endif %}
+
+        <!-- =====================================================
+         TASK 4
+         ===================================================== -->
+
+    <section class="card">
+
+        <h2>
+            Task 4: Active Learning for Expert Competence Discovery
+        </h2>
+
+        <p>
+            In this stage, the classifier still has access to the
+            complete labeled AG News training dataset, but expert
+            predictions are initially hidden.
+        </p>
+
+        <p>
+            The system can selectively query the simulated expert
+            for individual training examples. The objective is to
+            learn the expert's competence profile while requiring
+            as few expert interactions as possible.
+        </p>
+
+        <p class="explanation">
+
+            The primary active-learning strategy is
+            <strong>pool-based competence uncertainty sampling</strong>.
+            The system queries articles for which its current
+            estimate of expert correctness is closest to 0.5.
+
+            Random querying is used as a baseline, while a
+            deferral-aware strategy with diversity is included as
+            an additional comparison.
+
+        </p>
+
+    </section>
+
+
+
+    {% if active_results %}
+
+
+    <!-- =====================================================
+         TASK 4 — SETTING
+         ===================================================== -->
+
+    <section class="card">
+
+        <h2>
+            Active Learning Setting
+        </h2>
+
+
+        <div class="result-grid">
+
+
+            <div>
+
+                <span class="metric-label">
+                    Training Samples
+                </span>
+
+                <span class="metric-value">
+                    {{ active_results.training_samples }}
+                </span>
+
+            </div>
+
+
+            <div>
+
+                <span class="metric-label">
+                    Initial Expert Queries
+                </span>
+
+                <span class="metric-value">
+                    {{ active_results.initial_queries }}
+                </span>
+
+            </div>
+
+
+            <div>
+
+                <span class="metric-label">
+                    AI Baseline
+                </span>
+
+                <span class="metric-value">
+                    {{ active_results.ai_baseline_accuracy_percent }}%
+                </span>
+
+            </div>
+
+
+            <div>
+
+                <span class="metric-label">
+                    Full-information L2D
+                </span>
+
+                <span class="metric-value">
+                    {{ active_results.full_l2d_accuracy_percent }}%
+                </span>
+
+            </div>
+
+
+        </div>
+
+
+        <p class="explanation">
+
+            Unlike Task 3, the competence model cannot observe all
+            expert predictions during training. Expert information
+            becomes available only for examples explicitly selected
+            by the query strategy.
+
+        </p>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         TASK 4 — STRATEGIES
+         ===================================================== -->
+
+    <section class="card">
+
+        <h2>
+            Query Strategies
+        </h2>
+
+
+        <p>
+            <strong>Random querying:</strong>
+            training examples are selected randomly. This provides
+            the baseline against which active learning is compared.
+        </p>
+
+
+        <p>
+            <strong>Competence uncertainty sampling:</strong>
+            examples are prioritized when the current competence
+            model is uncertain whether the expert will be correct.
+            Maximum uncertainty occurs when the estimated expert
+            correctness probability is close to 0.5.
+        </p>
+
+
+        <p>
+            <strong>Deferral-aware + diversity:</strong>
+            an additional experiment prioritizes examples close to
+            the AI-expert routing boundary and favors diverse
+            articles to reduce redundant queries.
+        </p>
+
+
+        <p class="explanation">
+
+            Uncertainty sampling is chosen as the main strategy
+            because expert labels are expensive and the objective
+            is to query examples that provide useful information
+            about the expert's unknown competence.
+
+        </p>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         TASK 4 — BEST ACTIVE RESULT
+         ===================================================== -->
+
+    {% if best_active_point %}
+
+    <section class="card">
+
+        <h2>
+            Key Active Learning Result
+        </h2>
+
+
+        <div class="result-grid">
+
+
+            <div>
+
+                <span class="metric-label">
+                    Expert Queries
+                </span>
+
+                <span class="metric-value">
+                    {{ best_active_point.budget }}
+                </span>
+
+            </div>
+
+
+            <div>
+
+                <span class="metric-label">
+                    Training Set Queried
+                </span>
+
+                <span class="metric-value">
+                    {{ best_query_fraction|floatformat:2 }}%
+                </span>
+
+            </div>
+
+
+            <div>
+
+                <span class="metric-label">
+                    Team Accuracy
+                </span>
+
+                <span class="metric-value">
+                    {{ best_active_point.uncertainty_accuracy|floatformat:2 }}%
+                </span>
+
+            </div>
+
+
+            <div>
+
+                <span class="metric-label">
+                    Routing Accuracy
+                </span>
+
+                <span class="metric-value">
+                    {{ best_active_point.uncertainty_routing|floatformat:2 }}%
+                </span>
+
+            </div>
+
+
+            <div>
+
+                <span class="metric-label">
+                    L2D Gain Recovered
+                </span>
+
+                <span class="metric-value">
+                    {{ best_active_point.uncertainty_recovery|floatformat:2 }}%
+                </span>
+
+            </div>
+
+
+            <div>
+
+                <span class="metric-label">
+                    Gap to Full L2D
+                </span>
+
+                <span class="metric-value">
+                    {{ best_gap_to_full_l2d|floatformat:2 }} pp
+                </span>
+
+            </div>
+
+
+        </div>
+
+
+        <p class="explanation">
+
+            With only
+            <strong>
+                {{ best_active_point.budget }}
+            </strong>
+            expert queries, corresponding to approximately
+            <strong>
+                {{ best_query_fraction|floatformat:2 }}%
+            </strong>
+            of the 120,000 training examples, uncertainty
+            sampling achieves
+            <strong>
+                {{ best_active_point.uncertainty_accuracy|floatformat:2 }}%
+            </strong>
+            team accuracy.
+
+            This recovers approximately
+            <strong>
+                {{ best_active_point.uncertainty_recovery|floatformat:2 }}%
+            </strong>
+            of the improvement obtained by the full-information
+            Learning-to-Defer system.
+
+        </p>
+
+    </section>
+
+    {% endif %}
+
+
+
+    <!-- =====================================================
+         TASK 4 — TEAM ACCURACY TABLE
+         ===================================================== -->
+
+    <section class="card">
+
+        <h2>
+            Team Accuracy vs. Expert Query Budget
+        </h2>
+
+        <p>
+            All strategies are evaluated using the same expert
+            query budgets.
+        </p>
+
+
+        <div class="table-wrapper">
+
+
+            <table>
+
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Queries
+                        </th>
+
+                        <th>
+                            Training Set Queried
+                        </th>
+
+                        <th>
+                            Random
+                        </th>
+
+                        <th>
+                            Uncertainty
+                        </th>
+
+                        <th>
+                            Deferral + Diversity
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+
+                    {% for row in active_learning_rows %}
+
+                    <tr>
+
+                        <td>
+                            <strong>
+                                {{ row.budget }}
+                            </strong>
+                        </td>
+
+                        <td>
+                            {{ row.query_fraction|floatformat:2 }}%
+                        </td>
+
+                        <td>
+                            {{ row.random_accuracy|floatformat:2 }}%
+                        </td>
+
+                        <td>
+                            <strong>
+                                {{ row.uncertainty_accuracy|floatformat:2 }}%
+                            </strong>
+                        </td>
+
+                        <td>
+                            {{ row.deferral_accuracy|floatformat:2 }}%
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+
+                </tbody>
+
+
+            </table>
+
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         TASK 4 — ROUTING QUALITY
+         ===================================================== -->
+
+    <section class="card">
+
+        <h2>
+            Routing Accuracy
+        </h2>
+
+        <p>
+            Routing accuracy measures whether the system selects
+            the better decision maker in cases where exactly one
+            of the AI or expert is correct.
+        </p>
+
+
+        <div class="table-wrapper">
+
+
+            <table>
+
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Queries
+                        </th>
+
+                        <th>
+                            Random
+                        </th>
+
+                        <th>
+                            Uncertainty
+                        </th>
+
+                        <th>
+                            Deferral + Diversity
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+
+                    {% for row in active_learning_rows %}
+
+                    <tr>
+
+                        <td>
+                            <strong>
+                                {{ row.budget }}
+                            </strong>
+                        </td>
+
+                        <td>
+                            {{ row.random_routing|floatformat:2 }}%
+                        </td>
+
+                        <td>
+                            {{ row.uncertainty_routing|floatformat:2 }}%
+                        </td>
+
+                        <td>
+                            {{ row.deferral_routing|floatformat:2 }}%
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+
+                </tbody>
+
+
+            </table>
+
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         TASK 4 — FULL L2D GAIN RECOVERY
+         ===================================================== -->
+
+    <section class="card">
+
+        <h2>
+            Recovery of Full-information L2D Performance
+        </h2>
+
+        <p>
+            This metric measures how much of the improvement from
+            the fully supervised Learning-to-Defer model is
+            recovered using only the queried expert labels.
+        </p>
+
+
+        <div class="table-wrapper">
+
+
+            <table>
+
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Queries
+                        </th>
+
+                        <th>
+                            Random
+                        </th>
+
+                        <th>
+                            Uncertainty
+                        </th>
+
+                        <th>
+                            Deferral + Diversity
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+
+                    {% for row in active_learning_rows %}
+
+                    <tr>
+
+                        <td>
+                            <strong>
+                                {{ row.budget }}
+                            </strong>
+                        </td>
+
+                        <td>
+                            {{ row.random_recovery|floatformat:2 }}%
+                        </td>
+
+                        <td>
+                            <strong>
+                                {{ row.uncertainty_recovery|floatformat:2 }}%
+                            </strong>
+                        </td>
+
+                        <td>
+                            {{ row.deferral_recovery|floatformat:2 }}%
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+
+                </tbody>
+
+
+            </table>
+
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         TASK 4 — RESULT ANALYSIS
+         ===================================================== -->
+
+    <section class="card">
+
+        <h2>
+            Active Learning Analysis
+        </h2>
+
+
+        <p>
+            At a budget of
+            <strong>1,000 expert queries</strong>,
+            uncertainty sampling achieves
+            <strong>94.57% team accuracy</strong>,
+            compared with
+            <strong>94.37%</strong>
+            for random querying.
+        </p>
+
+
+        <p>
+            This corresponds to querying only approximately
+            <strong>0.83%</strong>
+            of the complete training dataset while recovering
+            <strong>83.67%</strong>
+            of the improvement achieved when all expert labels
+            are available.
+        </p>
+
+
+        <p>
+            At larger query budgets, random querying becomes
+            competitive. At 5,000 queries, random sampling
+            achieves 94.97% team accuracy while uncertainty
+            sampling achieves 94.71%.
+        </p>
+
+
+        <p class="explanation">
+
+            The experiment therefore indicates that targeted
+            uncertainty sampling is particularly useful when the
+            expert-query budget is small or moderate.
+
+            With larger budgets, random querying provides broad
+            coverage of the relatively simple expert competence
+            regions and can eventually perform equally well or
+            better.
+
+        </p>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         TASK 4 — CONCLUSION
+         ===================================================== -->
+
+    <section class="card">
+
+        <h2>
+            Task 4 Conclusion
+        </h2>
+
+
+        <div class="result-grid">
+
+
+            <div>
+
+                <span class="metric-label">
+                    AI Only
+                </span>
+
+                <span class="metric-value">
+                    {{ active_results.ai_baseline_accuracy_percent }}%
+                </span>
+
+            </div>
+
+
+            <div>
+
+                <span class="metric-label">
+                    Active Learning
+                    <br>
+                    1,000 Queries
+                </span>
+
+                <span class="metric-value">
+                    94.57%
+                </span>
+
+            </div>
+
+
+            <div>
+
+                <span class="metric-label">
+                    Full-information L2D
+                </span>
+
+                <span class="metric-value">
+                    {{ active_results.full_l2d_accuracy_percent }}%
+                </span>
+
+            </div>
+
+
+        </div>
+
+
+        <p class="explanation">
+
+            Active learning allows the system to discover much of
+            the expert's useful competence without collecting
+            expert predictions for the entire training dataset.
+
+            Only 1,000 expert interactions are sufficient to
+            approach the performance of the full-information
+            Learning-to-Defer system, leaving a difference of only
+            approximately
+            <strong>
+                {{ best_gap_to_full_l2d|floatformat:2 }}
+                percentage points
+            </strong>.
+
+        </p>
+
+    </section>
+
+
+
+    {% else %}
+
+
+    <section class="card">
+
+        <h2>
+            Active Learning Results
+        </h2>
+
+        <p>
+            Task 4 results are not available.
+        </p>
+
+        <p>
+            Run:
+        </p>
+
+        <strong>
+            python project3/ml/active_learning.py
+        </strong>
+
+    </section>
+
+
+    {% endif %}
+
+    
+
+</main>
+
+
+</body>
+
+</html>

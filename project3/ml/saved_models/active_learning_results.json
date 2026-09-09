@@ -1,0 +1,713 @@
+{
+    "project_task": "Active Learning for expert competence discovery",
+    "proposed_strategy": "Deferral-aware uncertainty combined with diversity sampling",
+    "strategy_description": "Queries articles close to the learned AI-expert routing boundary and applies cosine-similarity diversity to reduce redundant queries.",
+    "query_budgets": [
+        100,
+        250,
+        500,
+        1000,
+        2000,
+        5000
+    ],
+    "initial_queries": 100,
+    "training_samples": 120000,
+    "ai_baseline_accuracy": 0.9186842105263158,
+    "ai_baseline_accuracy_percent": 91.87,
+    "full_l2d_accuracy": 0.950921052631579,
+    "full_l2d_accuracy_percent": 95.09,
+    "boundary_weight": 0.8,
+    "diversity_weight": 0.2,
+    "experiments": [
+        {
+            "query_budget": 100,
+            "query_fraction_percent": 0.0833,
+            "random": {
+                "team_accuracy": 0.9406578947368421,
+                "team_accuracy_percent": 94.07,
+                "competence_accuracy": 0.8097368421052632,
+                "competence_accuracy_percent": 80.97,
+                "routing_accuracy": 0.8047368421052632,
+                "routing_accuracy_percent": 80.47,
+                "coverage": 0.9132894736842105,
+                "coverage_percent": 91.33,
+                "deferral_rate": 0.08671052631578947,
+                "deferral_rate_percent": 8.67,
+                "useful_deferrals": 220,
+                "harmful_deferrals": 53,
+                "class_deferral": [
+                    {
+                        "class": "World",
+                        "deferral_rate": 0.06842105263157895,
+                        "deferral_rate_percent": 6.84
+                    },
+                    {
+                        "class": "Sports",
+                        "deferral_rate": 0.049473684210526316,
+                        "deferral_rate_percent": 4.95
+                    },
+                    {
+                        "class": "Business",
+                        "deferral_rate": 0.11421052631578947,
+                        "deferral_rate_percent": 11.42
+                    },
+                    {
+                        "class": "Sci/Tech",
+                        "deferral_rate": 0.11473684210526315,
+                        "deferral_rate_percent": 11.47
+                    }
+                ]
+            },
+            "competence_uncertainty": {
+                "team_accuracy": 0.9406578947368421,
+                "team_accuracy_percent": 94.07,
+                "competence_accuracy": 0.8097368421052632,
+                "competence_accuracy_percent": 80.97,
+                "routing_accuracy": 0.8047368421052632,
+                "routing_accuracy_percent": 80.47,
+                "coverage": 0.9132894736842105,
+                "coverage_percent": 91.33,
+                "deferral_rate": 0.08671052631578947,
+                "deferral_rate_percent": 8.67,
+                "useful_deferrals": 220,
+                "harmful_deferrals": 53,
+                "class_deferral": [
+                    {
+                        "class": "World",
+                        "deferral_rate": 0.06842105263157895,
+                        "deferral_rate_percent": 6.84
+                    },
+                    {
+                        "class": "Sports",
+                        "deferral_rate": 0.049473684210526316,
+                        "deferral_rate_percent": 4.95
+                    },
+                    {
+                        "class": "Business",
+                        "deferral_rate": 0.11421052631578947,
+                        "deferral_rate_percent": 11.42
+                    },
+                    {
+                        "class": "Sci/Tech",
+                        "deferral_rate": 0.11473684210526315,
+                        "deferral_rate_percent": 11.47
+                    }
+                ]
+            },
+            "deferral_aware_diversity": {
+                "team_accuracy": 0.9406578947368421,
+                "team_accuracy_percent": 94.07,
+                "competence_accuracy": 0.8097368421052632,
+                "competence_accuracy_percent": 80.97,
+                "routing_accuracy": 0.8047368421052632,
+                "routing_accuracy_percent": 80.47,
+                "coverage": 0.9132894736842105,
+                "coverage_percent": 91.33,
+                "deferral_rate": 0.08671052631578947,
+                "deferral_rate_percent": 8.67,
+                "useful_deferrals": 220,
+                "harmful_deferrals": 53,
+                "class_deferral": [
+                    {
+                        "class": "World",
+                        "deferral_rate": 0.06842105263157895,
+                        "deferral_rate_percent": 6.84
+                    },
+                    {
+                        "class": "Sports",
+                        "deferral_rate": 0.049473684210526316,
+                        "deferral_rate_percent": 4.95
+                    },
+                    {
+                        "class": "Business",
+                        "deferral_rate": 0.11421052631578947,
+                        "deferral_rate_percent": 11.42
+                    },
+                    {
+                        "class": "Sci/Tech",
+                        "deferral_rate": 0.11473684210526315,
+                        "deferral_rate_percent": 11.47
+                    }
+                ]
+            },
+            "random_gain_recovery": 0.6816326530612246,
+            "uncertainty_gain_recovery": 0.6816326530612246,
+            "deferral_gain_recovery": 0.6816326530612246
+        },
+        {
+            "query_budget": 250,
+            "query_fraction_percent": 0.2083,
+            "random": {
+                "team_accuracy": 0.9415789473684211,
+                "team_accuracy_percent": 94.16,
+                "competence_accuracy": 0.8078947368421052,
+                "competence_accuracy_percent": 80.79,
+                "routing_accuracy": 0.8084210526315789,
+                "routing_accuracy_percent": 80.84,
+                "coverage": 0.9085526315789474,
+                "coverage_percent": 90.86,
+                "deferral_rate": 0.09144736842105264,
+                "deferral_rate_percent": 9.14,
+                "useful_deferrals": 231,
+                "harmful_deferrals": 57,
+                "class_deferral": [
+                    {
+                        "class": "World",
+                        "deferral_rate": 0.07157894736842105,
+                        "deferral_rate_percent": 7.16
+                    },
+                    {
+                        "class": "Sports",
+                        "deferral_rate": 0.04894736842105263,
+                        "deferral_rate_percent": 4.89
+                    },
+                    {
+                        "class": "Business",
+                        "deferral_rate": 0.12052631578947369,
+                        "deferral_rate_percent": 12.05
+                    },
+                    {
+                        "class": "Sci/Tech",
+                        "deferral_rate": 0.12473684210526316,
+                        "deferral_rate_percent": 12.47
+                    }
+                ]
+            },
+            "competence_uncertainty": {
+                "team_accuracy": 0.9417105263157894,
+                "team_accuracy_percent": 94.17,
+                "competence_accuracy": 0.8094736842105263,
+                "competence_accuracy_percent": 80.95,
+                "routing_accuracy": 0.8089473684210526,
+                "routing_accuracy_percent": 80.89,
+                "coverage": 0.9027631578947368,
+                "coverage_percent": 90.28,
+                "deferral_rate": 0.09723684210526316,
+                "deferral_rate_percent": 9.72,
+                "useful_deferrals": 239,
+                "harmful_deferrals": 64,
+                "class_deferral": [
+                    {
+                        "class": "World",
+                        "deferral_rate": 0.07789473684210527,
+                        "deferral_rate_percent": 7.79
+                    },
+                    {
+                        "class": "Sports",
+                        "deferral_rate": 0.05368421052631579,
+                        "deferral_rate_percent": 5.37
+                    },
+                    {
+                        "class": "Business",
+                        "deferral_rate": 0.12947368421052632,
+                        "deferral_rate_percent": 12.95
+                    },
+                    {
+                        "class": "Sci/Tech",
+                        "deferral_rate": 0.12789473684210526,
+                        "deferral_rate_percent": 12.79
+                    }
+                ]
+            },
+            "deferral_aware_diversity": {
+                "team_accuracy": 0.9421052631578948,
+                "team_accuracy_percent": 94.21,
+                "competence_accuracy": 0.8086842105263158,
+                "competence_accuracy_percent": 80.87,
+                "routing_accuracy": 0.8105263157894737,
+                "routing_accuracy_percent": 81.05,
+                "coverage": 0.9042105263157895,
+                "coverage_percent": 90.42,
+                "deferral_rate": 0.09578947368421052,
+                "deferral_rate_percent": 9.58,
+                "useful_deferrals": 239,
+                "harmful_deferrals": 61,
+                "class_deferral": [
+                    {
+                        "class": "World",
+                        "deferral_rate": 0.07526315789473684,
+                        "deferral_rate_percent": 7.53
+                    },
+                    {
+                        "class": "Sports",
+                        "deferral_rate": 0.05368421052631579,
+                        "deferral_rate_percent": 5.37
+                    },
+                    {
+                        "class": "Business",
+                        "deferral_rate": 0.12789473684210526,
+                        "deferral_rate_percent": 12.79
+                    },
+                    {
+                        "class": "Sci/Tech",
+                        "deferral_rate": 0.12631578947368421,
+                        "deferral_rate_percent": 12.63
+                    }
+                ]
+            },
+            "random_gain_recovery": 0.7102040816326526,
+            "uncertainty_gain_recovery": 0.7142857142857123,
+            "deferral_gain_recovery": 0.7265306122448982
+        },
+        {
+            "query_budget": 500,
+            "query_fraction_percent": 0.4167,
+            "random": {
+                "team_accuracy": 0.9431578947368421,
+                "team_accuracy_percent": 94.32,
+                "competence_accuracy": 0.8052631578947368,
+                "competence_accuracy_percent": 80.53,
+                "routing_accuracy": 0.8147368421052632,
+                "routing_accuracy_percent": 81.47,
+                "coverage": 0.9002631578947369,
+                "coverage_percent": 90.03,
+                "deferral_rate": 0.09973684210526315,
+                "deferral_rate_percent": 9.97,
+                "useful_deferrals": 245,
+                "harmful_deferrals": 59,
+                "class_deferral": [
+                    {
+                        "class": "World",
+                        "deferral_rate": 0.07736842105263157,
+                        "deferral_rate_percent": 7.74
+                    },
+                    {
+                        "class": "Sports",
+                        "deferral_rate": 0.05052631578947368,
+                        "deferral_rate_percent": 5.05
+                    },
+                    {
+                        "class": "Business",
+                        "deferral_rate": 0.13263157894736843,
+                        "deferral_rate_percent": 13.26
+                    },
+                    {
+                        "class": "Sci/Tech",
+                        "deferral_rate": 0.13842105263157894,
+                        "deferral_rate_percent": 13.84
+                    }
+                ]
+            },
+            "competence_uncertainty": {
+                "team_accuracy": 0.9435526315789474,
+                "team_accuracy_percent": 94.36,
+                "competence_accuracy": 0.8092105263157895,
+                "competence_accuracy_percent": 80.92,
+                "routing_accuracy": 0.8163157894736842,
+                "routing_accuracy_percent": 81.63,
+                "coverage": 0.8836842105263158,
+                "coverage_percent": 88.37,
+                "deferral_rate": 0.1163157894736842,
+                "deferral_rate_percent": 11.63,
+                "useful_deferrals": 271,
+                "harmful_deferrals": 82,
+                "class_deferral": [
+                    {
+                        "class": "World",
+                        "deferral_rate": 0.0931578947368421,
+                        "deferral_rate_percent": 9.32
+                    },
+                    {
+                        "class": "Sports",
+                        "deferral_rate": 0.06315789473684211,
+                        "deferral_rate_percent": 6.32
+                    },
+                    {
+                        "class": "Business",
+                        "deferral_rate": 0.15210526315789474,
+                        "deferral_rate_percent": 15.21
+                    },
+                    {
+                        "class": "Sci/Tech",
+                        "deferral_rate": 0.1568421052631579,
+                        "deferral_rate_percent": 15.68
+                    }
+                ]
+            },
+            "deferral_aware_diversity": {
+                "team_accuracy": 0.9423684210526316,
+                "team_accuracy_percent": 94.24,
+                "competence_accuracy": 0.8073684210526316,
+                "competence_accuracy_percent": 80.74,
+                "routing_accuracy": 0.8115789473684211,
+                "routing_accuracy_percent": 81.16,
+                "coverage": 0.900921052631579,
+                "coverage_percent": 90.09,
+                "deferral_rate": 0.09907894736842106,
+                "deferral_rate_percent": 9.91,
+                "useful_deferrals": 244,
+                "harmful_deferrals": 64,
+                "class_deferral": [
+                    {
+                        "class": "World",
+                        "deferral_rate": 0.07631578947368421,
+                        "deferral_rate_percent": 7.63
+                    },
+                    {
+                        "class": "Sports",
+                        "deferral_rate": 0.05368421052631579,
+                        "deferral_rate_percent": 5.37
+                    },
+                    {
+                        "class": "Business",
+                        "deferral_rate": 0.13315789473684211,
+                        "deferral_rate_percent": 13.32
+                    },
+                    {
+                        "class": "Sci/Tech",
+                        "deferral_rate": 0.13315789473684211,
+                        "deferral_rate_percent": 13.32
+                    }
+                ]
+            },
+            "random_gain_recovery": 0.759183673469386,
+            "uncertainty_gain_recovery": 0.7714285714285719,
+            "deferral_gain_recovery": 0.734693877551021
+        },
+        {
+            "query_budget": 1000,
+            "query_fraction_percent": 0.8333,
+            "random": {
+                "team_accuracy": 0.9436842105263158,
+                "team_accuracy_percent": 94.37,
+                "competence_accuracy": 0.7903947368421053,
+                "competence_accuracy_percent": 79.04,
+                "routing_accuracy": 0.8168421052631579,
+                "routing_accuracy_percent": 81.68,
+                "coverage": 0.8997368421052632,
+                "coverage_percent": 89.97,
+                "deferral_rate": 0.10026315789473685,
+                "deferral_rate_percent": 10.03,
+                "useful_deferrals": 246,
+                "harmful_deferrals": 56,
+                "class_deferral": [
+                    {
+                        "class": "World",
+                        "deferral_rate": 0.07105263157894737,
+                        "deferral_rate_percent": 7.11
+                    },
+                    {
+                        "class": "Sports",
+                        "deferral_rate": 0.04421052631578947,
+                        "deferral_rate_percent": 4.42
+                    },
+                    {
+                        "class": "Business",
+                        "deferral_rate": 0.14105263157894737,
+                        "deferral_rate_percent": 14.11
+                    },
+                    {
+                        "class": "Sci/Tech",
+                        "deferral_rate": 0.14473684210526316,
+                        "deferral_rate_percent": 14.47
+                    }
+                ]
+            },
+            "competence_uncertainty": {
+                "team_accuracy": 0.9456578947368421,
+                "team_accuracy_percent": 94.57,
+                "competence_accuracy": 0.8089473684210526,
+                "competence_accuracy_percent": 80.89,
+                "routing_accuracy": 0.8247368421052632,
+                "routing_accuracy_percent": 82.47,
+                "coverage": 0.8635526315789473,
+                "coverage_percent": 86.36,
+                "deferral_rate": 0.13644736842105262,
+                "deferral_rate_percent": 13.64,
+                "useful_deferrals": 303,
+                "harmful_deferrals": 98,
+                "class_deferral": [
+                    {
+                        "class": "World",
+                        "deferral_rate": 0.10736842105263159,
+                        "deferral_rate_percent": 10.74
+                    },
+                    {
+                        "class": "Sports",
+                        "deferral_rate": 0.07684210526315789,
+                        "deferral_rate_percent": 7.68
+                    },
+                    {
+                        "class": "Business",
+                        "deferral_rate": 0.17789473684210527,
+                        "deferral_rate_percent": 17.79
+                    },
+                    {
+                        "class": "Sci/Tech",
+                        "deferral_rate": 0.18368421052631578,
+                        "deferral_rate_percent": 18.37
+                    }
+                ]
+            },
+            "deferral_aware_diversity": {
+                "team_accuracy": 0.9446052631578947,
+                "team_accuracy_percent": 94.46,
+                "competence_accuracy": 0.8036842105263158,
+                "competence_accuracy_percent": 80.37,
+                "routing_accuracy": 0.8205263157894737,
+                "routing_accuracy_percent": 82.05,
+                "coverage": 0.8925,
+                "coverage_percent": 89.25,
+                "deferral_rate": 0.1075,
+                "deferral_rate_percent": 10.75,
+                "useful_deferrals": 258,
+                "harmful_deferrals": 61,
+                "class_deferral": [
+                    {
+                        "class": "World",
+                        "deferral_rate": 0.07789473684210527,
+                        "deferral_rate_percent": 7.79
+                    },
+                    {
+                        "class": "Sports",
+                        "deferral_rate": 0.053157894736842105,
+                        "deferral_rate_percent": 5.32
+                    },
+                    {
+                        "class": "Business",
+                        "deferral_rate": 0.14789473684210527,
+                        "deferral_rate_percent": 14.79
+                    },
+                    {
+                        "class": "Sci/Tech",
+                        "deferral_rate": 0.15105263157894736,
+                        "deferral_rate_percent": 15.11
+                    }
+                ]
+            },
+            "random_gain_recovery": 0.7755102040816316,
+            "uncertainty_gain_recovery": 0.8367346938775508,
+            "deferral_gain_recovery": 0.8040816326530597
+        },
+        {
+            "query_budget": 2000,
+            "query_fraction_percent": 1.6667,
+            "random": {
+                "team_accuracy": 0.9471052631578948,
+                "team_accuracy_percent": 94.71,
+                "competence_accuracy": 0.7622368421052632,
+                "competence_accuracy_percent": 76.22,
+                "routing_accuracy": 0.8305263157894737,
+                "routing_accuracy_percent": 83.05,
+                "coverage": 0.8889473684210526,
+                "coverage_percent": 88.89,
+                "deferral_rate": 0.11105263157894738,
+                "deferral_rate_percent": 11.11,
+                "useful_deferrals": 270,
+                "harmful_deferrals": 54,
+                "class_deferral": [
+                    {
+                        "class": "World",
+                        "deferral_rate": 0.07105263157894737,
+                        "deferral_rate_percent": 7.11
+                    },
+                    {
+                        "class": "Sports",
+                        "deferral_rate": 0.04105263157894737,
+                        "deferral_rate_percent": 4.11
+                    },
+                    {
+                        "class": "Business",
+                        "deferral_rate": 0.16157894736842104,
+                        "deferral_rate_percent": 16.16
+                    },
+                    {
+                        "class": "Sci/Tech",
+                        "deferral_rate": 0.1705263157894737,
+                        "deferral_rate_percent": 17.05
+                    }
+                ]
+            },
+            "competence_uncertainty": {
+                "team_accuracy": 0.9465789473684211,
+                "team_accuracy_percent": 94.66,
+                "competence_accuracy": 0.8078947368421052,
+                "competence_accuracy_percent": 80.79,
+                "routing_accuracy": 0.828421052631579,
+                "routing_accuracy_percent": 82.84,
+                "coverage": 0.8628947368421053,
+                "coverage_percent": 86.29,
+                "deferral_rate": 0.13710526315789473,
+                "deferral_rate_percent": 13.71,
+                "useful_deferrals": 308,
+                "harmful_deferrals": 96,
+                "class_deferral": [
+                    {
+                        "class": "World",
+                        "deferral_rate": 0.10578947368421053,
+                        "deferral_rate_percent": 10.58
+                    },
+                    {
+                        "class": "Sports",
+                        "deferral_rate": 0.07736842105263157,
+                        "deferral_rate_percent": 7.74
+                    },
+                    {
+                        "class": "Business",
+                        "deferral_rate": 0.18,
+                        "deferral_rate_percent": 18.0
+                    },
+                    {
+                        "class": "Sci/Tech",
+                        "deferral_rate": 0.18526315789473685,
+                        "deferral_rate_percent": 18.53
+                    }
+                ]
+            },
+            "deferral_aware_diversity": {
+                "team_accuracy": 0.9467105263157894,
+                "team_accuracy_percent": 94.67,
+                "competence_accuracy": 0.7893421052631578,
+                "competence_accuracy_percent": 78.93,
+                "routing_accuracy": 0.8289473684210527,
+                "routing_accuracy_percent": 82.89,
+                "coverage": 0.8851315789473684,
+                "coverage_percent": 88.51,
+                "deferral_rate": 0.11486842105263158,
+                "deferral_rate_percent": 11.49,
+                "useful_deferrals": 273,
+                "harmful_deferrals": 60,
+                "class_deferral": [
+                    {
+                        "class": "World",
+                        "deferral_rate": 0.07526315789473684,
+                        "deferral_rate_percent": 7.53
+                    },
+                    {
+                        "class": "Sports",
+                        "deferral_rate": 0.04894736842105263,
+                        "deferral_rate_percent": 4.89
+                    },
+                    {
+                        "class": "Business",
+                        "deferral_rate": 0.16105263157894736,
+                        "deferral_rate_percent": 16.11
+                    },
+                    {
+                        "class": "Sci/Tech",
+                        "deferral_rate": 0.17421052631578948,
+                        "deferral_rate_percent": 17.42
+                    }
+                ]
+            },
+            "random_gain_recovery": 0.8816326530612245,
+            "uncertainty_gain_recovery": 0.865306122448979,
+            "deferral_gain_recovery": 0.8693877551020386
+        },
+        {
+            "query_budget": 5000,
+            "query_fraction_percent": 4.1667,
+            "random": {
+                "team_accuracy": 0.9497368421052632,
+                "team_accuracy_percent": 94.97,
+                "competence_accuracy": 0.7296052631578948,
+                "competence_accuracy_percent": 72.96,
+                "routing_accuracy": 0.8410526315789474,
+                "routing_accuracy_percent": 84.11,
+                "coverage": 0.8731578947368421,
+                "coverage_percent": 87.32,
+                "deferral_rate": 0.1268421052631579,
+                "deferral_rate_percent": 12.68,
+                "useful_deferrals": 297,
+                "harmful_deferrals": 61,
+                "class_deferral": [
+                    {
+                        "class": "World",
+                        "deferral_rate": 0.07368421052631578,
+                        "deferral_rate_percent": 7.37
+                    },
+                    {
+                        "class": "Sports",
+                        "deferral_rate": 0.04631578947368421,
+                        "deferral_rate_percent": 4.63
+                    },
+                    {
+                        "class": "Business",
+                        "deferral_rate": 0.18736842105263157,
+                        "deferral_rate_percent": 18.74
+                    },
+                    {
+                        "class": "Sci/Tech",
+                        "deferral_rate": 0.2,
+                        "deferral_rate_percent": 20.0
+                    }
+                ]
+            },
+            "competence_uncertainty": {
+                "team_accuracy": 0.9471052631578948,
+                "team_accuracy_percent": 94.71,
+                "competence_accuracy": 0.8072368421052631,
+                "competence_accuracy_percent": 80.72,
+                "routing_accuracy": 0.8305263157894737,
+                "routing_accuracy_percent": 83.05,
+                "coverage": 0.8397368421052631,
+                "coverage_percent": 83.97,
+                "deferral_rate": 0.16026315789473683,
+                "deferral_rate_percent": 16.03,
+                "useful_deferrals": 334,
+                "harmful_deferrals": 118,
+                "class_deferral": [
+                    {
+                        "class": "World",
+                        "deferral_rate": 0.13210526315789473,
+                        "deferral_rate_percent": 13.21
+                    },
+                    {
+                        "class": "Sports",
+                        "deferral_rate": 0.08894736842105264,
+                        "deferral_rate_percent": 8.89
+                    },
+                    {
+                        "class": "Business",
+                        "deferral_rate": 0.20578947368421052,
+                        "deferral_rate_percent": 20.58
+                    },
+                    {
+                        "class": "Sci/Tech",
+                        "deferral_rate": 0.21421052631578946,
+                        "deferral_rate_percent": 21.42
+                    }
+                ]
+            },
+            "deferral_aware_diversity": {
+                "team_accuracy": 0.9461842105263157,
+                "team_accuracy_percent": 94.62,
+                "competence_accuracy": 0.7447368421052631,
+                "competence_accuracy_percent": 74.47,
+                "routing_accuracy": 0.8268421052631579,
+                "routing_accuracy_percent": 82.68,
+                "coverage": 0.8853947368421052,
+                "coverage_percent": 88.54,
+                "deferral_rate": 0.11460526315789474,
+                "deferral_rate_percent": 11.46,
+                "useful_deferrals": 270,
+                "harmful_deferrals": 61,
+                "class_deferral": [
+                    {
+                        "class": "World",
+                        "deferral_rate": 0.06578947368421052,
+                        "deferral_rate_percent": 6.58
+                    },
+                    {
+                        "class": "Sports",
+                        "deferral_rate": 0.041578947368421056,
+                        "deferral_rate_percent": 4.16
+                    },
+                    {
+                        "class": "Business",
+                        "deferral_rate": 0.16578947368421051,
+                        "deferral_rate_percent": 16.58
+                    },
+                    {
+                        "class": "Sci/Tech",
+                        "deferral_rate": 0.18526315789473685,
+                        "deferral_rate_percent": 18.53
+                    }
+                ]
+            },
+            "random_gain_recovery": 0.9632653061224491,
+            "uncertainty_gain_recovery": 0.8816326530612245,
+            "deferral_gain_recovery": 0.853061224489793
+        }
+    ]
+}
