@@ -1,0 +1,315 @@
+{% load static %}
+
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Task 5 - Human Expert
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="{% static 'project3/project3.css' %}"
+    >
+
+</head>
+
+
+<body>
+
+<div class="page-container">
+
+
+    <!-- ================================================= -->
+    <!-- HEADER                                            -->
+    <!-- ================================================= -->
+
+    <section class="hero-section">
+
+        <h1>
+            Task 5: Active Learning with Human Expert
+        </h1>
+
+        <p>
+            Provide topic labels for news articles selected
+            by the active-learning system.
+        </p>
+
+    </section>
+
+
+    <!-- ================================================= -->
+    <!-- QUERY POOL MISSING                                -->
+    <!-- ================================================= -->
+
+    {% if pool_missing %}
+
+        <section class="card">
+
+            <h2>
+                Human Query Pool Not Available
+            </h2>
+
+            <p>
+                Run the full Project 3 analysis first.
+                Task 4 will generate the articles requested
+                from the human expert.
+            </p>
+
+            <a
+                class="button-link"
+                href="{% url 'project3:index' %}"
+            >
+                Back to Project 3
+            </a>
+
+        </section>
+
+
+    <!-- ================================================= -->
+    <!-- SESSION FINISHED                                  -->
+    <!-- ================================================= -->
+
+    {% elif state.finished %}
+
+        <section class="card">
+
+            <h2>
+                Human Expert Session Complete
+            </h2>
+
+
+            <div class="result-grid">
+
+                <div>
+
+                    <span class="metric-label">
+                        Labels Provided
+                    </span>
+
+                    <span class="metric-value">
+                        {{ answered }}
+                    </span>
+
+                </div>
+
+
+                <div>
+
+                    <span class="metric-label">
+                        Correct Labels
+                    </span>
+
+                    <span class="metric-value">
+                        {{ correct_answers }}
+                    </span>
+
+                </div>
+
+
+                <div>
+
+                    <span class="metric-label">
+                        Human Accuracy
+                    </span>
+
+                    <span class="metric-value">
+
+                        {% if human_accuracy != None %}
+
+                            {{ human_accuracy|floatformat:2 }}%
+
+                        {% else %}
+
+                            -
+
+                        {% endif %}
+
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <p class="explanation">
+                The displayed examples were selected by the
+                active-learning system. The human responses
+                demonstrate how expert labels could be collected
+                interactively instead of being simulated.
+            </p>
+
+
+            <div class="action-row">
+
+                <form method="post">
+
+                    {% csrf_token %}
+
+                    <input
+                        type="hidden"
+                        name="action"
+                        value="reset"
+                    >
+
+                    <button type="submit" class="button-link">
+                        Start New Session
+                    </button>
+
+                </form>
+
+
+                <a
+                    class="button-link"
+                    href="{% url 'project3:index' %}"
+                >
+                    Back to Project 3
+                </a>
+
+            </div>
+
+        </section>
+
+
+    <!-- ================================================= -->
+    <!-- ACTIVE QUERY                                      -->
+    <!-- ================================================= -->
+
+    {% else %}
+
+        <section class="card">
+
+            <h2>
+                Human Expert Query
+            </h2>
+
+
+            <div class="result-grid">
+
+                <div>
+
+                    <span class="metric-label">
+                        Labels Provided
+                    </span>
+
+                    <span class="metric-value">
+                        {{ answered }}
+                    </span>
+
+                </div>
+
+
+                <div>
+
+                    <span class="metric-label">
+                        Total Requested
+                    </span>
+
+                    <span class="metric-value">
+                        {{ total_queries }}
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <p class="explanation">
+                Read the article and select the most appropriate
+                AG News category. The true label is hidden while
+                you make your decision.
+            </p>
+
+        </section>
+
+
+        <section class="card">
+
+            <h2>
+                News Article
+            </h2>
+
+
+            <div class="article-text">
+
+                {{ article.text }}
+
+            </div>
+
+
+            <h3>
+                Choose the article category
+            </h3>
+
+
+            <form method="post">
+
+                {% csrf_token %}
+
+                <input
+                    type="hidden"
+                    name="action"
+                    value="label"
+                >
+
+
+                <div class="label-grid">
+
+                    {% for class_name in class_names %}
+
+                        <button
+                            type="submit"
+                            class="button-link"
+                            name="label"
+                            value="{{ forloop.counter0 }}"
+                        >
+                            {{ class_name }}
+                        </button>
+
+                    {% endfor %}
+
+                </div>
+
+            </form>
+
+        </section>
+
+
+        <section class="card">
+
+            <form method="post">
+
+                {% csrf_token %}
+
+                <input
+                    type="hidden"
+                    name="action"
+                    value="finish"
+                >
+
+                <button type="submit" class="button-link">
+                    Finish Session
+                </button>
+
+            </form>
+
+        </section>
+
+    {% endif %}
+
+
+</div>
+
+</body>
+
+</html>

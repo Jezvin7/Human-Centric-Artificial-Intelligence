@@ -1,0 +1,38 @@
+[
+    {
+        "sample_index": 71249,
+        "human_label": 0,
+        "true_label": 0,
+        "correct": true
+    },
+    {
+        "sample_index": 94053,
+        "human_label": 0,
+        "true_label": 0,
+        "correct": true
+    },
+    {
+        "sample_index": 18016,
+        "human_label": 0,
+        "true_label": 0,
+        "correct": true
+    },
+    {
+        "sample_index": 21941,
+        "human_label": 0,
+        "true_label": 0,
+        "correct": true
+    },
+    {
+        "sample_index": 56499,
+        "human_label": 0,
+        "true_label": 0,
+        "correct": true
+    },
+    {
+        "sample_index": 56122,
+        "human_label": 0,
+        "true_label": 0,
+        "correct": true
+    }
+]

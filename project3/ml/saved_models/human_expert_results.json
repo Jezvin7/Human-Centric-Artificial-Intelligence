@@ -1,0 +1,36 @@
+{
+    "task": "Task 5 - Active Learning with Human Expert",
+    "human_queries": 6,
+    "correct_labels": 6,
+    "incorrect_labels": 0,
+    "human_accuracy_percent": 100.0,
+    "query_pool_size": 100,
+    "acquisition_strategy": "Competence uncertainty sampling",
+    "per_class_results": [
+        {
+            "class": "World",
+            "queries": 6,
+            "correct": 6,
+            "accuracy_percent": 100.0
+        },
+        {
+            "class": "Sports",
+            "queries": 0,
+            "correct": 0,
+            "accuracy_percent": null
+        },
+        {
+            "class": "Business",
+            "queries": 0,
+            "correct": 0,
+            "accuracy_percent": null
+        },
+        {
+            "class": "Sci/Tech",
+            "queries": 0,
+            "correct": 0,
+            "accuracy_percent": null
+        }
+    ],
+    "completed_at": "2026-09-09T14:23:51"
+}

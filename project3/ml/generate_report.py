@@ -89,25 +89,28 @@ ACTIVE_RESULTS_PATH = (
     / "active_learning_results.json"
 )
 
+HUMAN_RESULTS_PATH = (
+    RESULTS_DIR
+    / "human_expert_results.json"
+)
+
 
 # ============================================================
 # HELPERS
 # ============================================================
 
-def load_json(path):
-
+def load_json(path,required=True,):
     if not path.exists():
-
-        raise FileNotFoundError(
-            f"Required results file not found:\n{path}"
-        )
-
+        if required:
+            raise FileNotFoundError(
+                f"Required results file not found:\n{path}"
+            )
+        return None
     with open(
         path,
         "r",
         encoding="utf-8",
     ) as file:
-
         return json.load(file)
 
 
@@ -152,6 +155,12 @@ def load_all_results():
         "active":
             load_json(
                 ACTIVE_RESULTS_PATH
+            ),
+
+        "human":
+            load_json(
+                HUMAN_RESULTS_PATH,
+                required=False,
             ),
     }
 
@@ -375,6 +384,7 @@ def create_overall_accuracy_chart(
     expert = results["expert"]
     l2d = results["l2d"]
     active = results["active"]
+    human = results["human"]
 
 
     experiments = (
@@ -1109,6 +1119,7 @@ def generate_report():
     expert = results["expert"]
     l2d = results["l2d"]
     active = results["active"]
+    human = results["human"]
 
 
     # ========================================================
@@ -2605,12 +2616,160 @@ def generate_report():
             styles["note"],
         )
     )
+    
+    # ========================================================
+    # OPTIONAL TASK 5 - HUMAN EXPERT
+    # ========================================================
+
+    if human is not None:
+        story.append(
+            PageBreak()
+        )
 
 
-    story.append(
-        PageBreak()
-    )
+        story.append(
+            Paragraph(
+                "6. Task 5 - Active Learning with Human Expert",
+                styles["h1"],
+            )
+        )
 
+
+        story.append(
+            Paragraph(
+                "Interactive Extension",
+                styles["h2"],
+            )
+        )
+
+
+        story.append(
+            Paragraph(
+                (
+                    "Task 5 replaces the simulated interaction with "
+                    "a real user interface. Articles selected by the "
+                    "active-learning procedure are presented to the "
+                    "user one at a time. The user assigns one of the "
+                    "four AG News labels while the ground-truth label "
+                    "remains hidden."
+                ),
+                styles["body"],
+            )
+        )
+
+
+        story.append(
+            Paragraph(
+                "Design Choice",
+                styles["h2"],
+            )
+        )
+
+
+        story.append(
+            Paragraph(
+                (
+                    "The interface uses articles selected through "
+                    "competence uncertainty sampling. This connects "
+                    "the human interaction directly to the Active "
+                    "Learning objective: requesting labels only for "
+                    "examples considered informative for expert "
+                    "competence discovery."
+                ),
+                styles["body"],
+            )
+        )
+
+
+        human_data = [
+
+            [
+                "Metric",
+                "Result",
+            ],
+
+            [
+                "Human labels provided",
+                str(
+                    human[
+                        "human_queries"
+                    ]
+                ),
+            ],
+
+            [
+                "Correct labels",
+                str(
+                    human[
+                        "correct_labels"
+                    ]
+                ),
+            ],
+
+            [
+                "Incorrect labels",
+                str(
+                    human[
+                        "incorrect_labels"
+                    ]
+                ),
+            ],
+
+            [
+                "Human accuracy",
+                percent(
+                    human[
+                        "human_accuracy_percent"
+                    ]
+                ),
+            ],
+        ]
+
+
+        human_table = Table(
+            human_data,
+            colWidths=[
+                8 * cm,
+                6 * cm,
+            ],
+        )
+
+
+        style_table(
+            human_table
+        )
+
+
+        story.append(
+            human_table
+        )
+
+
+        story.append(
+            Spacer(
+                1,
+                0.5 * cm,
+            )
+        )
+
+
+        story.append(
+            Paragraph(
+                (
+                    "These results are reported separately from the "
+                    "controlled simulated-expert experiments in "
+                    "Tasks 1-4. Human responses therefore do not "
+                    "overwrite the reproducible Task 1-4 results."
+                ),
+                styles["note"],
+            )
+        )
+
+    next_section = (
+                7
+                if human is not None
+                else 6
+            )
 
     # ========================================================
     # 6. OVERALL DISCUSSION
@@ -2618,7 +2777,7 @@ def generate_report():
 
     story.append(
         Paragraph(
-            "6. Overall Discussion",
+            f"{next_section}. Overall Discussion",
             styles["h1"],
         )
     )
@@ -2659,68 +2818,13 @@ def generate_report():
         )
     )
 
-
-    # ========================================================
-    # 7. LIMITATIONS
-    # ========================================================
-
-    story.append(
-        Paragraph(
-            "7. Limitations and Future Work",
-            styles["h1"],
-        )
-    )
-
-
-    story.append(
-        Paragraph(
-            (
-                "The simulated expert uses a class-conditioned "
-                "competence profile. This provides a controlled "
-                "and reproducible experimental setting, but real "
-                "human expertise may depend on more complex "
-                "semantic properties of individual articles."
-            ),
-            styles["body"],
-        )
-    )
-
-
-    story.append(
-        Paragraph(
-            (
-                "The routing strategy also compares estimated "
-                "expert competence directly with AI probability. "
-                "Future experiments could investigate probability "
-                "calibration, alternative rejector models, "
-                "explicit expert-query costs, and other Active "
-                "Learning acquisition functions."
-            ),
-            styles["body"],
-        )
-    )
-
-
-    story.append(
-        Paragraph(
-            (
-                "The project specification additionally proposes "
-                "an optional extension in which a real user plays "
-                "the role of the expert. This was not required "
-                "for the Tasks 1-4 implementation."
-            ),
-            styles["note"],
-        )
-    )
-
-
     # ========================================================
     # 8. CONCLUSION
     # ========================================================
 
     story.append(
         Paragraph(
-            "8. Conclusion",
+            f"{next_section + 1}. Conclusion",
             styles["h1"],
         )
     )
@@ -2769,53 +2873,6 @@ def generate_report():
             styles["note"],
         )
     )
-
-
-    # ========================================================
-    # 9. REFERENCES
-    # ========================================================
-
-    story.append(
-        Paragraph(
-            "9. References",
-            styles["h1"],
-        )
-    )
-
-
-    references = [
-
-        (
-            "Project 3: Active Learning for "
-            "Learning-to-Defer, Human-Centric "
-            "Artificial Intelligence."
-        ),
-
-        (
-            "Lecture 5: Learning to Defer, "
-            "Human-Centric Artificial Intelligence."
-        ),
-
-        (
-            "Lecture 6: Active Learning, "
-            "Human-Centric Artificial Intelligence."
-        ),
-
-        (
-            "AG News dataset: fancyzhx/ag_news."
-        ),
-    ]
-
-
-    for reference in references:
-
-        story.append(
-            Paragraph(
-                "- " + safe(reference),
-                styles["body"],
-            )
-        )
-
 
     # ========================================================
     # GENERATE PDF

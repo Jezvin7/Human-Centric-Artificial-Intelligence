@@ -1925,3 +1925,98 @@ print(
 print(
     "\nTask 4 refined experiment completed successfully."
 )
+# ============================================================
+# TASK 5 - EXPORT HUMAN QUERY POOL
+# ============================================================
+
+HUMAN_QUERY_POOL_PATH = (
+    MODEL_DIR
+    / "human_query_pool.json"
+)
+
+
+def save_human_query_pool(
+    selected_indices,
+    train_texts,
+    train_labels,
+    max_queries=100,
+):
+    """
+    Save articles selected by the active-learning strategy
+    so that a real human can label them through the Django
+    Task 5 interface.
+    """
+
+    query_pool = []
+
+
+    for index in selected_indices[:max_queries]:
+
+        index = int(index)
+
+        query_pool.append(
+            {
+                "index":
+                    index,
+
+                "text":
+                    str(
+                        train_texts[index]
+                    ),
+
+                "true_label":
+                    int(
+                        train_labels[index]
+                    ),
+            }
+        )
+
+
+    with open(
+        HUMAN_QUERY_POOL_PATH,
+        "w",
+        encoding="utf-8",
+    ) as file:
+
+        json.dump(
+            query_pool,
+            file,
+            indent=2,
+            ensure_ascii=False,
+        )
+
+
+    print(
+        "\nHuman expert query pool saved:"
+    )
+
+    print(
+        HUMAN_QUERY_POOL_PATH
+    )
+
+
+# ============================================================
+# SELECT TASK 5 HUMAN QUERIES
+# ============================================================
+
+# The first INITIAL_QUERIES samples in uncertainty_indices
+# belong to the class-balanced warm-up set.
+#
+# Therefore we skip those samples and use the next 100
+# examples that were actually selected by competence
+# uncertainty sampling.
+
+task5_query_indices = (
+    uncertainty_indices[
+        INITIAL_QUERIES:
+        INITIAL_QUERIES + 100
+    ]
+)
+
+
+save_human_query_pool(
+    task5_query_indices,
+    train_texts,
+    train_labels,
+    max_queries=100,
+)
