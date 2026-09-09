@@ -24,3 +24,14 @@ This repository is a centralized Django-based web application designed to host f
 * Visualizes the selected decision tree with a clean, readable plot.
 * Generates counterfactual explanations for selected test examples and target species.
 * Provides PDP and ALE feature effect plots for numerical features.
+
+# Project 3: Active Learning for Learning-to-Defer
+**Key Functionalities**
+* Uses the AG News dataset for four-class news classification.
+* Implements a TF-IDF and Logistic Regression baseline classifier.
+* Simulates an imperfect expert with complementary class-specific strengths.
+* Implements Learning-to-Defer to decide between AI prediction and expert deferral.
+* Evaluates team accuracy, coverage, deferral rate, routing accuracy, and useful/harmful deferrals.
+* Implements Active Learning with random, competence uncertainty, and deferral-aware query strategies.
+* Provides a Run Full Analysis option to rerun Tasks 1–4 and refresh results.
+* Automatically generates and provides a downloadable PDF report with design choices, experiments, and results.
