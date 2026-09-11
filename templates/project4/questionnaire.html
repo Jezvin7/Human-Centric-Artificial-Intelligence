@@ -1,0 +1,142 @@
+{% extends 'project4/base.html' %}
+
+{% block content %}
+
+<section class="narrow-card">
+
+    <span class="eyebrow">
+        After {{ condition }} condition
+    </span>
+
+    <h1>
+        Three quick questions
+    </h1>
+
+    <p>
+        1 = strongly disagree,
+        5 = strongly agree.
+    </p>
+
+
+    {% if error %}
+
+    <div class="alert">
+        {{ error }}
+    </div>
+
+    {% endif %}
+
+
+    <form method="post"
+          class="likert-form">
+
+    {% csrf_token %}
+
+
+    <fieldset>
+
+        <legend>
+            I could easily express my movie
+            preferences with this interface.
+        </legend>
+
+        <div class="likert-row">
+
+            {% for n in '12345' %}
+
+            <label>
+
+                <input
+                    type="radio"
+                    name="easy_to_express"
+                    value="{{ n }}"
+                >
+
+                <span>
+                    {{ n }}
+                </span>
+
+            </label>
+
+            {% endfor %}
+
+        </div>
+
+    </fieldset>
+
+
+    <fieldset>
+
+        <legend>
+            This interface was mentally demanding.
+        </legend>
+
+        <div class="likert-row">
+
+            {% for n in '12345' %}
+
+            <label>
+
+                <input
+                    type="radio"
+                    name="mentally_demanding"
+                    value="{{ n }}"
+                >
+
+                <span>
+                    {{ n }}
+                </span>
+
+            </label>
+
+            {% endfor %}
+
+        </div>
+
+    </fieldset>
+
+
+    <fieldset>
+
+        <legend>
+            I am confident that my answers
+            represent my real preferences.
+        </legend>
+
+        <div class="likert-row">
+
+            {% for n in '12345' %}
+
+            <label>
+
+                <input
+                    type="radio"
+                    name="confident"
+                    value="{{ n }}"
+                >
+
+                <span>
+                    {{ n }}
+                </span>
+
+            </label>
+
+            {% endfor %}
+
+        </div>
+
+    </fieldset>
+
+
+    <button
+        class="btn btn-primary"
+        type="submit"
+    >
+        Continue
+    </button>
+
+    </form>
+
+</section>
+
+{% endblock %}

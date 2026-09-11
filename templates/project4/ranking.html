@@ -1,0 +1,256 @@
+{% extends 'project4/base.html' %}
+
+{% block content %}
+
+<section class="study-header">
+
+    <div>
+
+        <span class="eyebrow">
+            Ranking Elicitation
+        </span>
+
+        <h1>
+            Rank the movies from most to least preferred
+        </h1>
+
+        <p>
+            Drag the movies into your preferred order.
+        </p>
+
+    </div>
+
+    <div class="step-count">
+
+        {{ round_number }}
+        /
+        {{ total_rounds }}
+
+    </div>
+
+</section>
+
+
+<div class="progress-wrapper">
+
+    <progress
+        class="study-progress"
+        value="{{ progress }}"
+        max="100">
+    </progress>
+
+</div>
+
+{% if error %}
+
+<div class="alert">
+    {{ error }}
+</div>
+
+{% endif %}
+
+
+<form
+    method="post"
+    id="ranking-form"
+>
+
+{% csrf_token %}
+
+<input
+    type="hidden"
+    name="ranking"
+    id="ranking-value"
+>
+
+
+<ol
+    class="ranking-list"
+    id="ranking-list"
+>
+
+{% for movie in movies %}
+
+<li
+    class="rank-item"
+    draggable="true"
+    data-id="{{ movie.movie_id }}"
+>
+
+    <span class="drag-handle">
+        ⋮⋮
+    </span>
+
+    <span class="rank-number">
+    </span>
+
+    <div>
+
+        <strong>
+            {{ movie.movie_title }}
+        </strong>
+
+        <p>
+            {{ movie.genres }}
+            ·
+            {{ movie.title_year|floatformat:0 }}
+            ·
+            {{ movie.duration|floatformat:0 }}
+            min
+            ·
+            {{ movie.content_rating }}
+        </p>
+
+    </div>
+
+</li>
+
+{% endfor %}
+
+</ol>
+
+
+<button
+    class="btn btn-primary"
+    type="submit"
+>
+    Save Ranking & Continue
+</button>
+
+</form>
+
+
+<script>
+
+(function () {
+
+    const list =
+        document.getElementById(
+            "ranking-list"
+        );
+
+    const hidden =
+        document.getElementById(
+            "ranking-value"
+        );
+
+    let dragged = null;
+
+
+    function update() {
+
+        const items = [
+            ...list.querySelectorAll(
+                ".rank-item"
+            )
+        ];
+
+        items.forEach(
+            (item, index) => {
+
+                item.querySelector(
+                    ".rank-number"
+                ).textContent =
+                    index + 1;
+
+            }
+        );
+
+        hidden.value = items
+            .map(
+                item =>
+                    item.dataset.id
+            )
+            .join(",");
+    }
+
+
+    list
+        .querySelectorAll(
+            ".rank-item"
+        )
+        .forEach(
+            item => {
+
+                item.addEventListener(
+                    "dragstart",
+                    () => {
+
+                        dragged =
+                            item;
+
+                        item.classList.add(
+                            "dragging"
+                        );
+                    }
+                );
+
+
+                item.addEventListener(
+                    "dragend",
+                    () => {
+
+                        item.classList.remove(
+                            "dragging"
+                        );
+
+                        dragged = null;
+
+                        update();
+                    }
+                );
+
+
+                item.addEventListener(
+                    "dragover",
+                    event => {
+
+                        event.preventDefault();
+
+                        if (
+                            !dragged
+                            ||
+                            dragged === item
+                        )
+                            return;
+
+                        const rect =
+                            item.getBoundingClientRect();
+
+                        const before =
+                            event.clientY
+                            <
+                            rect.top
+                            +
+                            rect.height / 2;
+
+                        list.insertBefore(
+                            dragged,
+                            before
+                                ? item
+                                : item.nextSibling
+                        );
+                    }
+                );
+
+            }
+        );
+
+
+    document
+        .getElementById(
+            "ranking-form"
+        )
+        .addEventListener(
+            "submit",
+            update
+        );
+
+
+    update();
+
+})();
+
+</script>
+
+{% endblock %}

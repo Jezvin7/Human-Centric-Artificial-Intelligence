@@ -1,0 +1,48 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>
+        {% block title %}
+        Project 4 - Preference Elicitation
+        {% endblock %}
+    </title>
+
+    <link rel="stylesheet"
+          href="{% static 'project4/project4.css' %}">
+
+</head>
+
+<body>
+
+<header class="topbar">
+
+    <a class="brand"
+       href="{% url 'project4:index' %}">
+        HCAI - Project 4
+    </a>
+
+    <span>
+        Preference Elicitation
+    </span>
+
+</header>
+
+<main class="page-shell">
+
+    {% block content %}
+    {% endblock %}
+
+</main>
+
+</body>
+
+</html>
