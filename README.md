@@ -48,3 +48,40 @@ This repository is a centralized Django-based web application designed to host f
 * Evaluates both learned preference models using held-out movie comparisons.
 * Provides a complete participant-facing study flow with consent, elicitation tasks, questionnaires, evaluation, and completion page.
 * Automatically generates and provides a downloadable PDF report describing the feature representation, preference models, and proposed user study design.
+
+## Setup
+
+### 1. Clone the Repository
+
+```bash
+git clone <repository-url>
+cd Human-Centric-Artificial-Intelligence
+```
+
+### 2. Install Dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+### 3. Create / Update Database Migrations
+
+```bash
+python manage.py migrate
+```
+
+### 4. Run the Application
+
+```bash
+python manage.py runserver
+```
+
+### 5. Open in Browser
+
+Visit:
+
+```text
+http://127.0.0.1:8000/
+```
+
+The home page provides access to all implemented Human-Centric Artificial Intelligence projects.
