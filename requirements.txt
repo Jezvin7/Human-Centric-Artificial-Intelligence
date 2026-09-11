@@ -1,12 +1,11 @@
 Django>=5.2,<6.1
-
 numpy
 pandas
+scipy
 scikit-learn
 joblib
-
+palmerpenguins
 datasets
 pyarrow
-
 matplotlib
 reportlab
