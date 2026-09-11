@@ -1,0 +1,112 @@
+{% extends 'project4/base.html' %}
+
+{% block content %}
+
+<section class="study-header">
+
+    <div>
+
+        <span class="eyebrow">
+            Held-out Evaluation
+        </span>
+
+        <h1>
+            One final set of movie choices
+        </h1>
+
+        <p>
+            These movies were not used to train
+            either preference model.
+        </p>
+
+    </div>
+
+    <div class="step-count">
+
+        {{ round_number }}
+        /
+        {{ total_rounds }}
+
+    </div>
+
+</section>
+
+
+<div class="progress-wrapper">
+
+    <progress
+        class="study-progress"
+        value="{{ progress }}"
+        max="100">
+    </progress>
+
+</div>
+
+
+<form method="post">
+
+{% csrf_token %}
+
+<div class="movie-grid">
+
+    <button
+        class="movie-card"
+        type="submit"
+        name="chosen"
+        value="{{ left.movie_id }}"
+    >
+
+        <h2>
+            {{ left.movie_title }}
+        </h2>
+
+        <p>
+            {{ left.genres }}
+        </p>
+
+        <p>
+            {{ left.title_year|floatformat:0 }}
+        </p>
+
+        <strong>
+            Prefer
+        </strong>
+
+    </button>
+
+
+    <div class="versus">
+        VS
+    </div>
+
+
+    <button
+        class="movie-card"
+        type="submit"
+        name="chosen"
+        value="{{ right.movie_id }}"
+    >
+
+        <h2>
+            {{ right.movie_title }}
+        </h2>
+
+        <p>
+            {{ right.genres }}
+        </p>
+
+        <p>
+            {{ right.title_year|floatformat:0 }}
+        </p>
+
+        <strong>
+            Prefer
+        </strong>
+
+    </button>
+
+</div>
+
+</form>
+
+{% endblock %}

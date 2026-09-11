@@ -1,0 +1,97 @@
+{% extends 'project4/base.html' %}
+
+{% load static %}
+
+{% block content %}
+
+<section class="hero">
+
+    <span class="eyebrow">
+        Human-Centric Artificial Intelligence
+    </span>
+
+    <h1>
+        Project 4: Preference Elicitation
+    </h1>
+
+    <p class="lead">
+        Comparing pairwise choices and ranking-based
+        preference elicitation for movie recommendation.
+    </p>
+
+</section>
+
+
+<section class="two-column">
+
+    <article class="panel">
+
+        <h2>
+            Project Report
+        </h2>
+
+        <p>
+            Read about the movie representation,
+            Bradley-Terry model, ranking extension
+            and proposed user study.
+        </p>
+
+        <a
+            class="btn btn-secondary"
+            href="{% static 'project4/reports/project4_report.pdf' %}"
+            target="_blank"
+        >
+            Download PDF Report
+        </a>
+
+    </article>
+
+
+    <article class="panel">
+
+        <h2>
+            Interactive Study
+        </h2>
+
+        <p>
+            Try the complete participant-facing
+            preference elicitation interface.
+        </p>
+
+        <a
+            class="btn btn-primary"
+            href="{% url 'project4:study_intro' %}"
+        >
+            Start Study
+        </a>
+
+    </article>
+
+</section>
+
+
+<section class="method-strip">
+
+    <div>
+        <strong>Task 1</strong>
+        <span>Movie Features</span>
+    </div>
+
+    <div>
+        <strong>Task 2</strong>
+        <span>Preference Model</span>
+    </div>
+
+    <div>
+        <strong>Task 3</strong>
+        <span>User Study</span>
+    </div>
+
+    <div>
+        <strong>Task 4</strong>
+        <span>Interface</span>
+    </div>
+
+</section>
+
+{% endblock %}

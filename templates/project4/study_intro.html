@@ -1,0 +1,108 @@
+{% extends 'project4/base.html' %}
+
+{% block content %}
+
+<section class="narrow-card">
+
+    <span class="eyebrow">
+        Participant Information
+    </span>
+
+    <h1>
+        Movie Preference Study
+    </h1>
+
+    <p>
+        This study compares two different methods
+        for expressing movie preferences.
+    </p>
+
+    <div class="info-grid">
+
+        <div>
+            <strong>Pairwise</strong>
+            <span>
+                15 choices between two movies.
+            </span>
+        </div>
+
+        <div>
+            <strong>Ranking</strong>
+            <span>
+                3 rankings of 10 movies.
+            </span>
+        </div>
+
+        <div>
+            <strong>Evaluation</strong>
+            <span>
+                10 new movie choices.
+            </span>
+        </div>
+
+        <div>
+            <strong>Privacy</strong>
+            <span>
+                No name or email is collected.
+            </span>
+        </div>
+
+    </div>
+
+
+    {% if dataset_error %}
+
+        <div class="alert">
+
+            {{ dataset_error }}
+
+        </div>
+
+    {% endif %}
+
+
+    {% if error %}
+
+        <div class="alert">
+
+            {{ error }}
+
+        </div>
+
+    {% endif %}
+
+
+    <form method="post">
+
+        {% csrf_token %}
+
+        <label class="consent-row">
+
+            <input
+                type="checkbox"
+                name="consent"
+                value="yes"
+            >
+
+            <span>
+                I have read the information above
+                and voluntarily agree to participate
+                in this demonstration study.
+            </span>
+
+        </label>
+
+        <br>
+
+        <button
+            class="btn btn-primary"
+            type="submit"
+        >
+            Begin Study
+        </button>
+
+    </form>
+
+</section>
+
+{% endblock %}

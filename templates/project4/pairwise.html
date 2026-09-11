@@ -1,0 +1,149 @@
+{% extends 'project4/base.html' %}
+
+{% block content %}
+
+<section class="study-header">
+
+    <div>
+
+        <span class="eyebrow">
+            Pairwise Elicitation
+        </span>
+
+        <h1>
+            Which movie would you rather watch?
+        </h1>
+
+    </div>
+
+    <div class="step-count">
+
+        {{ round_number }}
+        /
+        {{ total_rounds }}
+
+    </div>
+
+</section>
+
+
+<div class="progress-wrapper">
+
+    <progress
+        class="study-progress"
+        value="{{ progress }}"
+        max="100">
+    </progress>
+
+</div>
+
+
+<form method="post">
+
+{% csrf_token %}
+
+<div class="movie-grid">
+
+    <button
+        class="movie-card"
+        type="submit"
+        name="chosen"
+        value="{{ left.movie_id }}"
+    >
+
+        <h2>
+            {{ left.movie_title }}
+        </h2>
+
+        <p>
+            {{ left.genres }}
+        </p>
+
+        <p>
+            Year:
+            {{ left.title_year|floatformat:0 }}
+        </p>
+
+        <p>
+            Duration:
+            {{ left.duration|floatformat:0 }}
+            min
+        </p>
+
+        <p>
+            Rating:
+            {{ left.content_rating }}
+        </p>
+
+        {% if left.director_name %}
+
+        <p>
+            Director:
+            {{ left.director_name }}
+        </p>
+
+        {% endif %}
+
+        <strong>
+            Choose this movie
+        </strong>
+
+    </button>
+
+
+    <div class="versus">
+        VS
+    </div>
+
+
+    <button
+        class="movie-card"
+        type="submit"
+        name="chosen"
+        value="{{ right.movie_id }}"
+    >
+
+        <h2>
+            {{ right.movie_title }}
+        </h2>
+
+        <p>
+            {{ right.genres }}
+        </p>
+
+        <p>
+            Year:
+            {{ right.title_year|floatformat:0 }}
+        </p>
+
+        <p>
+            Duration:
+            {{ right.duration|floatformat:0 }}
+            min
+        </p>
+
+        <p>
+            Rating:
+            {{ right.content_rating }}
+        </p>
+
+        {% if right.director_name %}
+
+        <p>
+            Director:
+            {{ right.director_name }}
+        </p>
+
+        {% endif %}
+
+        <strong>
+            Choose this movie
+        </strong>
+
+    </button>
+
+</div>
+
+</form>
+
+{% endblock %}

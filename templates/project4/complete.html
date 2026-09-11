@@ -1,0 +1,112 @@
+{% extends 'project4/base.html' %}
+
+{% block content %}
+
+<section class="narrow-card centered">
+
+    <span class="eyebrow">
+        Study Complete
+    </span>
+
+    <h1>
+        Thank you
+    </h1>
+
+    <p>
+        Anonymous participant code:
+    </p>
+
+    <code>
+        {{ participant_code }}
+    </code>
+
+
+    <div class="metric-grid">
+
+        <div class="metric-card">
+
+            <span>
+                Pairwise model
+            </span>
+
+            <strong>
+                {{ pairwise_metrics.accuracy|floatformat:2 }}
+            </strong>
+
+            <small>
+                Held-out accuracy
+            </small>
+
+        </div>
+
+
+        <div class="metric-card">
+
+            <span>
+                Ranking model
+            </span>
+
+            <strong>
+                {{ ranking_metrics.accuracy|floatformat:2 }}
+            </strong>
+
+            <small>
+                Held-out accuracy
+            </small>
+
+        </div>
+
+
+        <div class="metric-card">
+
+            <span>
+                Pairwise time
+            </span>
+
+            <strong>
+                {{ pairwise_time }}
+            </strong>
+
+            <small>
+                seconds
+            </small>
+
+        </div>
+
+
+        <div class="metric-card">
+
+            <span>
+                Ranking time
+            </span>
+
+            <strong>
+                {{ ranking_time }}
+            </strong>
+
+            <small>
+                seconds
+            </small>
+
+        </div>
+
+    </div>
+
+
+    <a
+        class="btn btn-secondary"
+        href="{% url 'project4:index' %}"
+    >
+        Back to Project
+    </a>
+
+    <a
+        class="btn btn-primary"
+        href="{% url 'project4:reset_study' %}"
+    >
+        Run Demo Again
+    </a>
+
+</section>
+
+{% endblock %}
