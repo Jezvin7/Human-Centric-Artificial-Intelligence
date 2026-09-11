@@ -35,3 +35,16 @@ This repository is a centralized Django-based web application designed to host f
 * Implements Active Learning with random, competence uncertainty, and deferral-aware query strategies.
 * Provides a Run Full Analysis option to rerun Tasks 1–4 and refresh results.
 * Automatically generates and provides a downloadable PDF report with design choices, experiments, and results.
+
+# Project 4: Preference Elicitation
+**Key Functionalities**
+* Uses the IMDB 5000 Movie Dataset for movie preference modeling.
+* Represents movies using genres, duration, release year, IMDb score, and content rating.
+* Implements a Bradley-Terry model for pairwise movie preferences.
+* Extends pairwise preference modeling to full rankings using the Plackett-Luce model.
+* Provides two preference elicitation interfaces: pairwise movie selection and ranking sets of 10 movies.
+* Uses a counterbalanced within-subject study design to compare both elicitation methods.
+* Collects completion time and subjective feedback on ease of use, mental demand, and confidence.
+* Evaluates both learned preference models using held-out movie comparisons.
+* Provides a complete participant-facing study flow with consent, elicitation tasks, questionnaires, evaluation, and completion page.
+* Automatically generates and provides a downloadable PDF report describing the feature representation, preference models, and proposed user study design.
